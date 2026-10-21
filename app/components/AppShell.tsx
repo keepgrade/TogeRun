@@ -2,21 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, ListChecks, MapPinned, User } from "lucide-react";
-import type { ReactNode } from "react";
+import { Bell, Calendar, CalendarDays, Home, ListChecks, MapPinned, User } from "lucide-react";
+import { useMemo, type ReactNode } from "react";
+import { computeAlerts } from "@/lib/alerts";
 import { useApp } from "@/lib/store";
 
 const NAV = [
   { href: "/", label: "홈", icon: Home },
   { href: "/races", label: "대회", icon: ListChecks },
   { href: "/map", label: "지도", icon: MapPinned },
+  { href: "/calendar", label: "캘린더", icon: Calendar },
+  { href: "/alerts", label: "알림", icon: Bell },
   { href: "/me", label: "내 정보", icon: User },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { me } = useApp();
+  const { me, data } = useApp();
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const unread = useMemo(() => (me ? computeAlerts(data, me.id).received.length : 0), [data, me]);
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-20 md:pb-0">
@@ -34,9 +38,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium ${active(href) ? "bg-orange-50 text-orange-700" : "text-zinc-600 hover:bg-zinc-100"}`}
+                className={`relative rounded-lg px-3 py-1.5 text-sm font-medium ${active(href) ? "bg-orange-50 text-orange-700" : "text-zinc-600 hover:bg-zinc-100"}`}
               >
                 {label}
+                {href === "/alerts" && unread > 0 && (
+                  <span className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">{unread}</span>
+                )}
               </Link>
             ))}
           </nav>
@@ -50,10 +57,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <li key={href} className="flex-1">
               <Link
                 href={href}
-                className={`flex flex-col items-center gap-0.5 py-2 text-xs ${active(href) ? "text-orange-600" : "text-zinc-500"}`}
+                className={`relative flex flex-col items-center gap-0.5 py-2 text-[11px] ${active(href) ? "text-orange-600" : "text-zinc-500"}`}
               >
                 <Icon size={20} />
                 {label}
+                {href === "/alerts" && unread > 0 && (
+                  <span className="absolute right-3 top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">{unread}</span>
+                )}
               </Link>
             </li>
           ))}

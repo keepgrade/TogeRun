@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import BuddyCard from "@/components/BuddyCard";
+import RaceCard from "@/components/RaceCard";
 import { btnGhost, btnPrimary, card, Empty } from "@/components/ui";
 import { useApp, useGuard } from "@/lib/store";
 
 export default function MePage() {
-  const { data, me, a } = useApp();
+  const { data, me, myFavorites, a } = useApp();
   const guard = useGuard();
 
   if (!me) {
@@ -18,6 +19,7 @@ export default function MePage() {
   }
 
   const mine = data.buddyPosts.filter((p) => p.authorId === me.id);
+  const saved = data.races.filter((r) => myFavorites.includes(r.id));
 
   return (
     <div>
@@ -28,6 +30,15 @@ export default function MePage() {
         </div>
         <button onClick={a.logout} className={btnGhost}>로그아웃</button>
       </div>
+
+      <h2 className="mb-2 mt-6 text-lg font-bold">저장한 대회 {saved.length}</h2>
+      {saved.length ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {saved.map((r) => <RaceCard key={r.id} race={r} />)}
+        </div>
+      ) : (
+        <Empty action={<Link href="/races" className={btnGhost}>대회 둘러보기</Link>}>저장한 대회가 없어요.</Empty>
+      )}
 
       <h2 className="mb-2 mt-6 text-lg font-bold">내 모집글 {mine.length}</h2>
       {mine.length ? (

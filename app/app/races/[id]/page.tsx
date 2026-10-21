@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
+import FavoriteBar from "@/components/FavoriteBar";
 import RaceInfo from "@/components/RaceInfo";
 import { BuddyTab, ComingTab } from "@/components/RaceTabs";
 import { Empty, StatusBadge, btnGhost, card } from "@/components/ui";
@@ -71,6 +72,8 @@ export default function RaceDetailPage() {
       {race.extraRegOpen && (
         <p className="mt-1 text-xs text-zinc-500">추가 접수 시작: {fmtDate(race.extraRegOpen)}</p>
       )}
+
+      <FavoriteBar race={race} />
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
         <a href={race.officialUrl} target="_blank" rel="noreferrer" className={btnGhost}>
