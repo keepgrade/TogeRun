@@ -71,6 +71,8 @@ export interface Profile {
   gender?: Gender;
   age?: string;
   paceSec?: number;
+  /** 성별·나이 수집·이용에 동의했는지. 둘 중 하나라도 입력하려면 필요하다 */
+  consent?: boolean;
   pub: { gender: boolean; age: boolean; pace: boolean; history: boolean };
 }
 

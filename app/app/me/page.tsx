@@ -5,10 +5,11 @@ import BuddyCard from "@/components/BuddyCard";
 import RaceCard from "@/components/RaceCard";
 import { btnGhost, btnPrimary, card, Empty } from "@/components/ui";
 import { timeAgo } from "@/lib/date";
+import { paceText } from "@/lib/format";
 import { useApp, useGuard } from "@/lib/store";
 
 export default function MePage() {
-  const { data, me, myFavorites, myBlocked, userName, a } = useApp();
+  const { data, me, myFavorites, myBlocked, myProfile, myHistory, userName, a } = useApp();
   const guard = useGuard();
 
   if (!me) {
@@ -31,6 +32,17 @@ export default function MePage() {
           <p className="text-lg font-bold">{me.nickname}</p>
         </div>
         <button onClick={a.logout} className={btnGhost}>로그아웃</button>
+      </div>
+
+      <div className={`${card} mt-4 flex items-center justify-between gap-3 p-4`}>
+        <div className="min-w-0 text-sm">
+          <p className="font-semibold">러닝 프로필</p>
+          <p className="mt-0.5 text-zinc-500">
+            {myProfile.paceSec ? `페이스 ${paceText(myProfile.paceSec)} · ` : ""}
+            경험 {myHistory.length}건 · 공개 항목 {Object.values(myProfile.pub).filter(Boolean).length}개
+          </p>
+        </div>
+        <Link href="/me/profile" className={btnGhost}>프로필 편집</Link>
       </div>
 
       <h2 className="mb-2 mt-6 text-lg font-bold">저장한 대회 {saved.length}</h2>

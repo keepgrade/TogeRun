@@ -84,6 +84,31 @@ export function Field({ label, required, hint, error, children }: { label: strin
   );
 }
 
+/** 공개/비공개 같은 켜고 끄는 스위치 */
+export function Toggle({ checked, onChange, label, onText = "공개", offText = "비공개" }: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  onText?: string;
+  offText?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-2 py-1 text-xs font-medium ${
+        checked ? "border-orange-300 bg-orange-50 text-orange-800" : "border-zinc-300 bg-white text-zinc-600"
+      }`}
+    >
+      <span className={`inline-block h-3 w-3 rounded-full ${checked ? "bg-orange-600" : "bg-zinc-300"}`} />
+      {checked ? onText : offText}
+    </button>
+  );
+}
+
 export const inputCls =
   "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 disabled:bg-zinc-100";
 
