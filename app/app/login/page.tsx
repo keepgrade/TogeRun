@@ -1,11 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Camera } from "lucide-react";
 import { btnGhost, card } from "@/components/ui";
 import { takeNextPath, useApp } from "@/lib/store";
 
 const PROVIDERS = [
   { id: "kakao", label: "카카오로 계속하기", cls: "bg-yellow-300 text-zinc-900 hover:bg-yellow-400" },
+  {
+    id: "instagram",
+    label: "인스타그램으로 계속하기",
+    cls: "bg-gradient-to-r from-fuchsia-600 via-rose-500 to-orange-400 text-white hover:opacity-90",
+    icon: Camera,
+  },
   { id: "google", label: "Google로 계속하기", cls: "bg-white text-zinc-800 border border-zinc-300 hover:bg-zinc-50" },
   { id: "naver", label: "네이버로 계속하기", cls: "bg-green-600 text-white hover:bg-green-700" },
 ];
@@ -32,7 +39,12 @@ export default function LoginPage() {
       )}
       <div className={`${card} mt-4 space-y-2 p-4`}>
         {PROVIDERS.map((p) => (
-          <button key={p.id} onClick={() => go(p.id)} className={`w-full rounded-lg px-4 py-3 text-sm font-semibold ${p.cls}`}>
+          <button
+            key={p.id}
+            onClick={() => go(p.id)}
+            className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold ${p.cls}`}
+          >
+            {"icon" in p && p.icon ? <p.icon size={16} /> : null}
             {p.label}
           </button>
         ))}
