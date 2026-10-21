@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import CommunityRows from "@/components/CommunityRows";
+import Pagination, { usePaged } from "@/components/Pagination";
 import { btnGhost, Empty, inputCls } from "@/components/ui";
 import { useApp } from "@/lib/store";
 import { TAGS } from "@/lib/types";
@@ -26,6 +27,8 @@ export default function CommunityPage() {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }, [data.cposts, data.races, myBlocked, tag, q]);
 
+  const pg = usePaged(posts);
+
   return (
     <div>
       <h1 className="text-xl font-bold">커뮤니티</h1>
@@ -33,14 +36,14 @@ export default function CommunityPage() {
 
       <div className="relative mt-4">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="제목, 내용, 대회명 검색" aria-label="커뮤니티 검색" className={`${inputCls} pl-9`} />
+        <input value={q} onChange={(e) => { setQ(e.target.value); pg.resetPage(); }} placeholder="제목, 내용, 대회명 검색" aria-label="커뮤니티 검색" className={`${inputCls} pl-9`} />
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
         {["", ...TAGS].map((t) => (
           <button
             key={t || "all"}
-            onClick={() => setTag(t)}
+            onClick={() => { setTag(t); pg.resetPage(); }}
             className={`rounded-full border px-3 py-1 text-sm ${tag === t ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
           >
             {t || "전체"}
@@ -51,7 +54,10 @@ export default function CommunityPage() {
       <p className="mt-4 text-sm text-zinc-500">글 {posts.length}개</p>
       <div className="mt-2">
         {posts.length ? (
-          <CommunityRows posts={posts} showRace />
+          <>
+            <CommunityRows posts={pg.slice} showRace />
+            <Pagination page={pg.page} pages={pg.pages} size={pg.size} total={posts.length} onPage={pg.setPage} onSize={pg.setSize} />
+          </>
         ) : (
           <Empty action={<Link href="/races" className={btnGhost}>대회 찾아보기</Link>}>조건에 맞는 글이 없어요.</Empty>
         )}

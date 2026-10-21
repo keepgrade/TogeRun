@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import BuddyCard from "@/components/BuddyCard";
+import Pagination, { usePaged } from "@/components/Pagination";
 import { btnGhost, btnPrimary, Empty, inputCls } from "@/components/ui";
 import { buddyClosed } from "@/lib/derive";
 import { today } from "@/lib/date";
 import { useApp } from "@/lib/store";
 import { DISTANCES, REGIONS, STYLES } from "@/lib/types";
 
-const PAGE = 12;
 
 /** 모든 대회의 모집글을 모아 보는 버디 찾기 페이지 */
 export default function BuddyListPage() {
@@ -24,7 +24,6 @@ export default function BuddyListPage() {
   const [scope, setScope] = useState("");
   const [onlyOpen, setOnlyOpen] = useState(true);
   const [sort, setSort] = useState<"latest" | "deadline">("latest");
-  const [limit, setLimit] = useState(PAGE);
 
   const raceOf = useMemo(() => new Map(data.races.map((r) => [r.id, r])), [data.races]);
 
@@ -44,12 +43,14 @@ export default function BuddyListPage() {
       .sort((a, b) => (sort === "latest" ? b.createdAt.localeCompare(a.createdAt) : a.recruitUntil.localeCompare(b.recruitUntil)));
   }, [visible, raceOf, onlyOpen, distance, style, region, type, scope, q, sort, t]);
 
+  const pg = usePaged(list);
+
   const reset = () => {
-    setQ(""); setDistance(""); setStyle(""); setRegion(""); setType(""); setScope(""); setOnlyOpen(true); setSort("latest"); setLimit(PAGE);
+    setQ(""); setDistance(""); setStyle(""); setRegion(""); setType(""); setScope(""); setOnlyOpen(true); setSort("latest"); pg.resetPage();
   };
   const change = <T,>(setter: (v: T) => void) => (v: T) => {
     setter(v);
-    setLimit(PAGE);
+    pg.resetPage();
   };
 
   return (
@@ -96,7 +97,7 @@ export default function BuddyListPage() {
           <option value="">출발 지역 전체</option>
           {REGIONS.map((r) => <option key={r}>{r}</option>)}
         </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value as "latest" | "deadline")} className={inputCls} aria-label="정렬">
+        <select value={sort} onChange={(e) => { setSort(e.target.value as "latest" | "deadline"); pg.resetPage(); }} className={inputCls} aria-label="정렬">
           <option value="latest">최신순</option>
           <option value="deadline">모집 마감 임박순</option>
         </select>
@@ -121,13 +122,9 @@ export default function BuddyListPage() {
       ) : (
         <>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {list.slice(0, limit).map((p) => <BuddyCard key={p.id} post={p} showRace />)}
+            {pg.slice.map((p) => <BuddyCard key={p.id} post={p} showRace />)}
           </div>
-          {list.length > limit && (
-            <div className="mt-4 text-center">
-              <button onClick={() => setLimit(limit + PAGE)} className={btnGhost}>모집글 더보기</button>
-            </div>
-          )}
+          <Pagination page={pg.page} pages={pg.pages} size={pg.size} total={list.length} onPage={pg.setPage} onSize={pg.setSize} />
         </>
       )}
     </div>

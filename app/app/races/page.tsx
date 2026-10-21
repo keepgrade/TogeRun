@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import KindTabs from "@/components/KindTabs";
+import Pagination, { usePaged } from "@/components/Pagination";
 import RaceCard from "@/components/RaceCard";
 import { btnGhost, Empty, inputCls } from "@/components/ui";
 import { raceStatus } from "@/lib/derive";
@@ -11,7 +12,6 @@ import { matchKind, useKind, type Kind } from "@/lib/kind";
 import { useApp } from "@/lib/store";
 import { DISTANCES, REGIONS, TYPE_LABEL } from "@/lib/types";
 
-const PAGE = 12;
 const STATUS_CHIPS = ["전체", "접수 예정", "접수중", "접수 마감"] as const;
 
 /** 홈에서 넘어온 검색어·상태를 읽는다(세션 저장소). 소비는 마운트 후 효과에서 한다. */
@@ -39,13 +39,12 @@ export default function RacesPage() {
   }, []);
   const [past, setPast] = useState(false);
   const [sort, setSort] = useState<"date" | "close">("date");
-  const [limit, setLimit] = useState(PAGE);
   const [kind, setKind] = useKind();
 
   /** 종류·범위가 바뀌면 그 종류에 없는 지역·종목·시기 선택을 비운다 */
   const changeKind = (k: Kind) => {
     setKind(k);
-    setRegion(""); setDistance(""); setMonth(""); setLimit(PAGE);
+    setRegion(""); setDistance(""); setMonth(""); pg.resetPage();
   };
 
   const t = today();
@@ -74,13 +73,15 @@ export default function RacesPage() {
       .sort((a, b) => (sort === "date" ? a.date.localeCompare(b.date) : a.regClose.localeCompare(b.regClose)));
   }, [inKind, q, region, distance, month, status, past, sort, t]);
 
+  const pg = usePaged(list);
+
   const months = useMemo(
     () => Array.from(new Set(inKind.map((r) => monthKey(r.date)))).sort(),
     [inKind],
   );
 
   const reset = () => {
-    setQ(""); setRegion(""); setDistance(""); setMonth(""); setStatus("전체"); setPast(false); setLimit(PAGE);
+    setQ(""); setRegion(""); setDistance(""); setMonth(""); setStatus("전체"); setPast(false); pg.resetPage();
   };
 
   return (
@@ -95,7 +96,7 @@ export default function RacesPage() {
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input
           value={q}
-          onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }}
+          onChange={(e) => { setQ(e.target.value); pg.resetPage(); }}
           placeholder="대회명, 지역, 장소 검색"
           className={`${inputCls} pl-9`}
           aria-label="대회 검색"
@@ -106,7 +107,7 @@ export default function RacesPage() {
         {STATUS_CHIPS.map((s) => (
           <button
             key={s}
-            onClick={() => { setStatus(s); setLimit(PAGE); }}
+            onClick={() => { setStatus(s); pg.resetPage(); }}
             className={`rounded-full border px-3 py-1 text-sm ${status === s ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
           >
             {s}
@@ -115,19 +116,19 @@ export default function RacesPage() {
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <select value={region} onChange={(e) => { setRegion(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label={kind.scope === "국내" ? "지역" : "국가"}>
+        <select value={region} onChange={(e) => { setRegion(e.target.value); pg.resetPage(); }} className={inputCls} aria-label={kind.scope === "국내" ? "지역" : "국가"}>
           <option value="">{kind.scope === "국내" ? "지역 전체" : "국가 전체"}</option>
           {regionOptions.map((r) => <option key={r}>{r}</option>)}
         </select>
-        <select value={distance} onChange={(e) => { setDistance(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label="종목">
+        <select value={distance} onChange={(e) => { setDistance(e.target.value); pg.resetPage(); }} className={inputCls} aria-label="종목">
           <option value="">종목 전체</option>
           {distanceOptions.map((d) => <option key={d}>{d}</option>)}
         </select>
-        <select value={month} onChange={(e) => { setMonth(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label="시기">
+        <select value={month} onChange={(e) => { setMonth(e.target.value); pg.resetPage(); }} className={inputCls} aria-label="시기">
           <option value="">시기 전체</option>
           {months.map((m) => <option key={m} value={m}>{m.replace("-", "년 ")}월</option>)}
         </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value as "date" | "close")} className={inputCls} aria-label="정렬">
+        <select value={sort} onChange={(e) => { setSort(e.target.value as "date" | "close"); pg.resetPage(); }} className={inputCls} aria-label="정렬">
           <option value="date">개최일 빠른순</option>
           <option value="close">접수 마감 임박순</option>
         </select>
@@ -135,7 +136,7 @@ export default function RacesPage() {
 
       <div className="mt-3 flex items-center justify-between text-sm">
         <label className="inline-flex items-center gap-2 text-zinc-600">
-          <input type="checkbox" checked={past} onChange={(e) => setPast(e.target.checked)} />
+          <input type="checkbox" checked={past} onChange={(e) => { setPast(e.target.checked); pg.resetPage(); }} />
           지난·취소 대회 포함
         </label>
         <button onClick={reset} className="text-zinc-500 underline">필터 초기화</button>
@@ -152,13 +153,9 @@ export default function RacesPage() {
       ) : (
         <>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {list.slice(0, limit).map((r) => <RaceCard key={r.id} race={r} />)}
+            {pg.slice.map((r) => <RaceCard key={r.id} race={r} />)}
           </div>
-          {list.length > limit && (
-            <div className="mt-4 text-center">
-              <button onClick={() => setLimit(limit + PAGE)} className={btnGhost}>대회 더보기</button>
-            </div>
-          )}
+          <Pagination page={pg.page} pages={pg.pages} size={pg.size} total={list.length} onPage={pg.setPage} onSize={pg.setSize} />
         </>
       )}
     </div>
