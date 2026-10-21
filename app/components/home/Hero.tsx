@@ -52,7 +52,7 @@ export default function Hero() {
       <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
         <div>
           <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-semibold text-orange-700">
-            <Flag size={12} /> 마라톤 동행 가이드
+            <Flag size={12} /> 마라톤 버디 가이드
           </p>
           <h1 className="mt-4 text-4xl font-extrabold leading-[1.15] tracking-tight sm:text-5xl">
             같이 뛸 사람을
@@ -62,7 +62,7 @@ export default function Hero() {
             빠른 방법.
           </h1>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-600">
-            대회 일정과 접수 정보를 한곳에서 보고, 마음에 드는 대회 페이지에서 바로 동행을 구하세요. 접수 오픈도 놓치지 않게 알려 드려요.
+            대회 일정과 접수 정보를 한곳에서 보고, 마음에 드는 대회 페이지에서 바로 버디를 구하세요. 접수 오픈도 놓치지 않게 알려 드려요.
           </p>
           <form onSubmit={search} className="mt-6 flex max-w-md items-center gap-2 rounded-full border border-zinc-300 bg-white p-1.5 pl-4 shadow-sm focus-within:border-orange-500">
             <Search size={16} className="shrink-0 text-zinc-400" />
@@ -105,14 +105,14 @@ export default function Hero() {
               <p className="mt-1 text-zinc-500">이번 달</p>
               <p className="text-base font-bold">{month}</p>
             </Link>
-            <Link href="/community" className="rounded-xl border border-zinc-200 p-3 hover:border-orange-300">
+            <Link href="/buddy" className="rounded-xl border border-zinc-200 p-3 hover:border-orange-300">
               <Users size={16} className="mx-auto text-orange-600" />
-              <p className="mt-1 text-zinc-500">모집 중 동행</p>
+              <p className="mt-1 text-zinc-500">모집 중 버디</p>
               <p className="text-base font-bold">{buddies}</p>
             </Link>
           </div>
-          <Link href="/races" className="mt-3 flex items-center justify-between rounded-xl bg-orange-50 px-3 py-2.5 text-xs text-orange-900">
-            <span>같이 뛸 사람을 찾는 모집글을 대회별로 확인해 보세요</span>
+          <Link href="/buddy" className="mt-3 flex items-center justify-between rounded-xl bg-orange-50 px-3 py-2.5 text-xs text-orange-900">
+            <span>지금 모집 중인 버디를 한곳에서 확인해 보세요</span>
             <ArrowRight size={14} />
           </Link>
         </div>

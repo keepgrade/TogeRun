@@ -57,8 +57,8 @@ export function BuddyTab({ race }: { race: Race }) {
           <option value="">종목 전체</option>
           {uniqueDistances(race.courses).map((d) => <option key={d}>{d}</option>)}
         </select>
-        <select value={style} onChange={(e) => setStyle(e.target.value)} className={inputCls} aria-label="동행 방식">
-          <option value="">동행 방식 전체</option>
+        <select value={style} onChange={(e) => setStyle(e.target.value)} className={inputCls} aria-label="버디 방식">
+          <option value="">버디 방식 전체</option>
           {STYLES.map((s) => <option key={s}>{s}</option>)}
         </select>
         <select value={region} onChange={(e) => setRegion(e.target.value)} className={inputCls} aria-label="출발 지역">

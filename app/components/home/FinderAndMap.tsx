@@ -13,7 +13,7 @@ import { useApp } from "@/lib/store";
 
 const CARDS = [
   { href: "/races", icon: ListFilter, title: "조건으로 찾기", desc: "지역, 일정, 종목 등 원하는 조건을 골라 딱 맞는 대회를 찾아보세요." },
-  { href: "/community", icon: Users, title: "같이 뛸 사람 찾기", desc: "대회별 모집글과 커뮤니티에서 함께 뛸 러너를 만나보세요." },
+  { href: "/buddy", icon: Users, title: "같이 뛸 사람 찾기", desc: "종목, 버디 방식, 출발 지역으로 모집글을 골라 함께 뛸 러너를 만나보세요." },
   { href: "/calendar", icon: CalendarDays, title: "달력으로 확인하기", desc: "월별 대회 일정을 달력에서 확인하고 나만의 러닝 계획을 세워보세요." },
   { href: "/map", icon: MapPinned, title: "지도로 둘러보기", desc: "내 주변과 가고 싶은 지역의 대회를 지도에서 찾아보세요." },
 ];
@@ -24,7 +24,7 @@ export function Finder() {
       <SectionHead
         eyebrow="Race finder"
         title={<>원하는 대회를 가장<br className="hidden sm:block" /> 편한 방법으로 찾아보세요</>}
-        sub="조건으로 좁히고, 동행을 구하고, 달력과 지도에서 일정을 확인하세요."
+        sub="조건으로 좁히고, 버디를 구하고, 달력과 지도에서 일정을 확인하세요."
       />
       <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {CARDS.map(({ href, icon: Icon, title, desc }) => (

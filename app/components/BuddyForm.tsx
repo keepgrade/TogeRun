@@ -89,7 +89,7 @@ export default function BuddyForm({ race, post }: { race: Race; post?: BuddyPost
         </Field>
       </div>
 
-      <Field label="동행 방식" required hint="기본값은 현장 합류예요">
+      <Field label="버디 방식" required hint="기본값은 현장 합류예요">
         <select value={style} onChange={(e) => setStyle(e.target.value as Style)} className={inputCls}>
           {STYLES.map((s) => <option key={s}>{s}</option>)}
         </select>

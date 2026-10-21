@@ -44,7 +44,7 @@ export default function BuddyDetailPage() {
   const rows: [string, string][] = [
     ["대회", race.name],
     ["종목", post.distance],
-    ["동행 방식", post.style],
+    ["버디 방식", post.style],
     ["모집 인원", `${post.capacity}명`],
     ["모집 마감일", `${fmtDate(post.recruitUntil)} (${dday(post.recruitUntil, t)})`],
     ["출발 지역", post.departRegion],

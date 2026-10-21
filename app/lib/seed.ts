@@ -300,7 +300,7 @@ export function buildSeed(): Data {
   const genReviews = generateReviews(rng, allRaces, allUserIds, reviews, 1);
 
   return {
-    version: 5,
+    version: 6,
     users: [...users, ...genUsers.users],
     accounts: {},
     meId: null,

@@ -94,7 +94,7 @@ export function OpenSection() {
   );
 }
 
-/** TogeRun 고유 구획: 모집 중인 동행 */
+/** TogeRun 고유 구획: 모집 중인 버디 */
 export function BuddySection() {
   const { data, myBlocked } = useApp();
   const t = today();
@@ -107,16 +107,16 @@ export function BuddySection() {
       <SectionHead
         eyebrow="Running buddies"
         title={<>같이 뛸 사람을<br className="hidden sm:block" /> 지금 찾고 있어요</>}
-        sub="종목, 동행 방식, 출발 지역을 보고 나에게 맞는 모집글을 골라 보세요."
-        cta={{ href: "/races", label: "대회에서 모집글 쓰기" }}
+        sub="종목, 버디 방식, 출발 지역을 보고 나에게 맞는 모집글을 골라 보세요."
+        cta={{ href: "/buddy", label: "모집 중인 버디 전체 보기" }}
       />
-      <CountRow label="모집 중인 동행" count={list.length} />
+      <CountRow label="모집 중인 버디" count={list.length} />
       {list.length ? (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {list.slice(0, 6).map((p) => <BuddyCard key={p.id} post={p} showRace />)}
         </div>
       ) : (
-        <div className="mt-5"><Empty>지금 모집 중인 동행이 없어요.</Empty></div>
+        <div className="mt-5"><Empty>지금 모집 중인 버디가 없어요.</Empty></div>
       )}
     </section>
   );

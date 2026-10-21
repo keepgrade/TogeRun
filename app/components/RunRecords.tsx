@@ -172,7 +172,7 @@ export default function RunRecords() {
         </ul>
       ) : (
         <Empty action={<button onClick={() => setEditing("new")} className={btnGhost}>첫 기록 추가하기</button>}>
-          아직 기록이 없어요. 참가했던 대회를 적어 두면 동행할 사람이 나를 가늠하는 데 도움이 돼요.
+          아직 기록이 없어요. 참가했던 대회를 적어 두면 함께 뛸 버디가 나를 가늠하는 데 도움이 돼요.
         </Empty>
       )}
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, CalendarDays, Home, ListChecks, MapPinned, MessagesSquare, User } from "lucide-react";
+import { Bell, CalendarDays, Home, ListChecks, MessagesSquare, User, Users } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { computeAlerts } from "@/lib/alerts";
 import { useApp } from "@/lib/store";
@@ -10,16 +10,17 @@ import { useApp } from "@/lib/store";
 /** 상단 메뉴(데스크톱): 로고 옆에 대회·캘린더·지도·커뮤니티, 맨 오른쪽에 알림과 내 정보 */
 const TOP = [
   { href: "/races", label: "대회" },
+  { href: "/buddy", label: "버디" },
+  { href: "/community", label: "커뮤니티" },
   { href: "/calendar", label: "캘린더" },
   { href: "/map", label: "지도" },
-  { href: "/community", label: "커뮤니티" },
 ];
 
 /** 하단 탭(모바일) */
 const TABS = [
   { href: "/", label: "홈", icon: Home },
   { href: "/races", label: "대회", icon: ListChecks },
-  { href: "/map", label: "지도", icon: MapPinned },
+  { href: "/buddy", label: "버디", icon: Users },
   { href: "/community", label: "커뮤니티", icon: MessagesSquare },
   { href: "/alerts", label: "알림", icon: Bell },
   { href: "/me", label: "내 정보", icon: User },
@@ -70,7 +71,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <main className="mx-auto max-w-6xl px-4 py-5">{children}</main>
       <footer className="mx-auto hidden max-w-6xl border-t border-zinc-200 px-4 py-8 text-xs text-zinc-500 md:block">
         <p className="font-semibold text-zinc-700">TogeRun</p>
-        <p className="mt-1">혼자 신청하기 망설여지는 대회, 같이 뛸 사람을 찾는 마라톤 동행 서비스 · 프론트엔드 PoC</p>
+        <p className="mt-1">혼자 신청하기 망설여지는 대회, 같이 뛸 사람을 찾는 마라톤 버디 서비스 · 프론트엔드 PoC</p>
         <p className="mt-1">대회 정보는 가상 샘플 데이터이며 실제 대회와 무관합니다. 접수·결제는 공식 사이트에서 진행해 주세요.</p>
       </footer>
       <nav className="fixed inset-x-0 bottom-0 z-[2000] border-t border-zinc-200 bg-white md:hidden" aria-label="하단 메뉴">
