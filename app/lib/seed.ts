@@ -2,6 +2,7 @@ import { addDays, today } from "./date";
 import type { BuddyPost, CPost, Comment, Data, Race, Review } from "./types";
 import { defaultProfile } from "./types";
 import { generateBuddies, generateCommunity, generateRaces, generateReviews, generateUsers, makeRng } from "./seedGen";
+import { generateOverseasRaces } from "./seedOverseas";
 
 /** 대회별 지도 좌표(위도, 경도). 해당 지역 근처의 대략적인 값이다. */
 const GEO: Record<string, [number, number]> = {
@@ -41,6 +42,8 @@ const EXTRA: Record<string, Partial<Race>> = {
   },
   r03: {
     startTime: "07:00", endTime: "15:00", regCloseTime: "23:59", phone: "033-000-0303",
+    elevationGain: 1450, timeLimit: "하프 8시간 · 10K 4시간", difficulty: "상",
+    gear: ["방수 재킷", "헤드랜턴", "비상 호루라기", "물통 500ml 이상", "트레일 러닝화"],
     schedule: [
       { time: "06:00", title: "셔틀버스 탑승" },
       { time: "07:00", title: "하프 출발" },
@@ -56,6 +59,10 @@ const EXTRA: Record<string, Partial<Race>> = {
       { time: "08:30", title: "10K 출발" },
       { time: "09:00", title: "5K 출발" },
     ],
+  },
+  r15: {
+    elevationGain: 820, timeLimit: "하프 6시간 · 10K 3시간", difficulty: "중",
+    gear: ["방수 재킷", "물통 500ml 이상", "트레일 러닝화"],
   },
   r10: {
     courses: [
@@ -85,8 +92,9 @@ export function buildSeed(): Data {
   const d = (n: number) => addDays(t, n);
   const stamp = (n: number) => new Date(Date.now() + n * 86400000).toISOString();
 
-  type RaceInput = Omit<Race, "sourceUrl" | "officialUrl" | "lat" | "lng" | "startTime" | "endTime" | "host"> & Partial<Race>;
+  type RaceInput = Omit<Race, "sourceUrl" | "officialUrl" | "lat" | "lng" | "startTime" | "endTime" | "host" | "scope"> & Partial<Race>;
   const race = (r: RaceInput): Race => ({
+    scope: "국내",
     officialUrl: "https://example.com/race/" + r.id,
     sourceUrl: "https://example.com/source/" + r.id,
     lat: GEO[r.id][0],
@@ -292,15 +300,25 @@ export function buildSeed(): Data {
 
   // 직접 쓴 20개 대회 위에 생성기로 만든 더미 데이터를 더한다 (고정 시드라 결과가 같다)
   const rng = makeRng(20261022);
-  const allRaces = [...races, ...generateRaces(rng, 44, 21)];
+  const allRaces = [...races, ...generateRaces(rng, 44, 21), ...generateOverseasRaces()];
   const genUsers = generateUsers(rng, users.map((u) => u.nickname), 16);
   const allUserIds = [...users.map((u) => u.id), ...genUsers.users.map((u) => u.id)];
-  const genBuddies = generateBuddies(rng, allRaces, allUserIds, 52, 11);
-  const genCommunity = generateCommunity(rng, allRaces, allUserIds, 48, 7);
+  const overseasRaces = allRaces.filter((r) => r.scope === "해외");
+  // 해외 버디는 TogeRun의 차별점이라 해외 대회 전용 모집글·커뮤니티 글을 따로 더 만든다
+  const genBuddies = [
+    ...generateBuddies(rng, allRaces, allUserIds, 52, 11),
+    ...generateBuddies(rng, overseasRaces, allUserIds, 14, 63),
+  ];
+  const baseCommunity = generateCommunity(rng, allRaces, allUserIds, 48, 7);
+  const overseasCommunity = generateCommunity(rng, overseasRaces, allUserIds, 14, 55, 400);
+  const genCommunity = {
+    posts: [...baseCommunity.posts, ...overseasCommunity.posts],
+    comments: [...baseCommunity.comments, ...overseasCommunity.comments],
+  };
   const genReviews = generateReviews(rng, allRaces, allUserIds, reviews, 1);
 
   return {
-    version: 6,
+    version: 8,
     users: [...users, ...genUsers.users],
     accounts: {},
     meId: null,

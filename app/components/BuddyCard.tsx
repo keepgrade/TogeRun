@@ -22,6 +22,8 @@ export default function BuddyCard({ post, showRace }: { post: BuddyPost; showRac
       {showRace && race && <p className="mb-1 text-xs text-zinc-500">{race.name}</p>}
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge tone={closed ? "gray" : "green"}>{closed ? "모집 완료" : "모집중"}</Badge>
+        {race?.scope === "해외" && <Badge tone="blue">해외</Badge>}
+        {race?.type === "트레일" && <Badge tone="ink">트레일</Badge>}
         <Badge tone="orange">{post.distance}</Badge>
         <Badge tone="blue">{post.style}</Badge>
         <Badge>{post.departRegion}</Badge>

@@ -20,6 +20,8 @@ export default function BuddyListPage() {
   const [distance, setDistance] = useState("");
   const [style, setStyle] = useState("");
   const [region, setRegion] = useState("");
+  const [type, setType] = useState("");
+  const [scope, setScope] = useState("");
   const [onlyOpen, setOnlyOpen] = useState(true);
   const [sort, setSort] = useState<"latest" | "deadline">("latest");
   const [limit, setLimit] = useState(PAGE);
@@ -37,12 +39,13 @@ export default function BuddyListPage() {
     return visible
       .filter((p) => (onlyOpen ? !buddyClosed(p, raceOf.get(p.raceId), t) : true))
       .filter((p) => (!distance || p.distance === distance) && (!style || p.style === style) && (!region || p.departRegion === region))
+      .filter((p) => (!type || raceOf.get(p.raceId)?.type === type) && (!scope || raceOf.get(p.raceId)?.scope === scope))
       .filter((p) => !kw || `${raceOf.get(p.raceId)?.name ?? ""} ${p.intro ?? ""}`.includes(kw))
       .sort((a, b) => (sort === "latest" ? b.createdAt.localeCompare(a.createdAt) : a.recruitUntil.localeCompare(b.recruitUntil)));
-  }, [visible, raceOf, onlyOpen, distance, style, region, q, sort, t]);
+  }, [visible, raceOf, onlyOpen, distance, style, region, type, scope, q, sort, t]);
 
   const reset = () => {
-    setQ(""); setDistance(""); setStyle(""); setRegion(""); setOnlyOpen(true); setSort("latest"); setLimit(PAGE);
+    setQ(""); setDistance(""); setStyle(""); setRegion(""); setType(""); setScope(""); setOnlyOpen(true); setSort("latest"); setLimit(PAGE);
   };
   const change = <T,>(setter: (v: T) => void) => (v: T) => {
     setter(v);
@@ -70,7 +73,17 @@ export default function BuddyListPage() {
         />
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <select value={scope} onChange={(e) => change(setScope)(e.target.value)} className={inputCls} aria-label="범위">
+          <option value="">국내·해외 전체</option>
+          <option value="국내">국내</option>
+          <option value="해외">해외</option>
+        </select>
+        <select value={type} onChange={(e) => change(setType)(e.target.value)} className={inputCls} aria-label="대회 종류">
+          <option value="">마라톤·트레일 전체</option>
+          <option value="마라톤">마라톤</option>
+          <option value="트레일">트레일러닝</option>
+        </select>
         <select value={distance} onChange={(e) => change(setDistance)(e.target.value)} className={inputCls} aria-label="종목">
           <option value="">종목 전체</option>
           {DISTANCES.map((d) => <option key={d}>{d}</option>)}

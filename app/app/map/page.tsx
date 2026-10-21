@@ -3,36 +3,48 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { LocateFixed } from "lucide-react";
+import KindTabs from "@/components/KindTabs";
 import RaceCard from "@/components/RaceCard";
 import RaceMap, { type MapMarker } from "@/components/RaceMap";
 import { btnGhost, Empty, StatusBadge, card } from "@/components/ui";
 import { raceStatus } from "@/lib/derive";
 import { dday, fmtDate, today } from "@/lib/date";
+import { matchKind, useKind, type Kind } from "@/lib/kind";
 import { distanceKm, STATUS_COLOR } from "@/lib/maps";
 import { useApp } from "@/lib/store";
 
 const KOREA_CENTER: [number, number] = [36.4, 127.8];
+const WORLD_CENTER: [number, number] = [28, 40];
 
 export default function MapPage() {
   const { data } = useApp();
   const t = today();
+  const [kind, setKind] = useKind();
   const [region, setRegion] = useState("");
   const [past, setPast] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [user, setUser] = useState<[number, number] | null>(null);
   const [geoMsg, setGeoMsg] = useState("");
 
+  const inKind = useMemo(() => data.races.filter((r) => matchKind(r, kind)), [data.races, kind]);
+
   const visible = useMemo(
     () =>
-      data.races.filter((r) => {
+      inKind.filter((r) => {
         const s = raceStatus(r, t);
         if (!past && (s === "종료" || s === "취소")) return false;
         return !region || r.region === region;
       }),
-    [data.races, past, region, t],
+    [inKind, past, region, t],
   );
 
-  const regions = useMemo(() => Array.from(new Set(data.races.map((r) => r.region))).sort(), [data.races]);
+  const regions = useMemo(() => Array.from(new Set(inKind.map((r) => r.region))).sort(), [inKind]);
+
+  const changeKind = (k: Kind) => {
+    setKind(k);
+    setRegion("");
+    setSelectedId(null);
+  };
 
   const withDistance = useMemo(
     () =>
@@ -66,7 +78,12 @@ export default function MapPage() {
   return (
     <div>
       <h1 className="text-xl font-bold">지도</h1>
-      <p className="mt-1 text-sm text-zinc-500">가까운 지역의 대회를 지도에서 찾아보세요.</p>
+      <p className="mt-1 text-sm text-zinc-500">
+        {kind.scope === "국내" ? "가까운 지역의 대회를 지도에서 찾아보세요." : "해외 주요 대회가 열리는 도시를 지도에서 확인해 보세요."}
+      </p>
+      <div className="mt-3">
+        <KindTabs kind={kind} onChange={changeKind} />
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
         {["", ...regions].map((r) => (
@@ -96,9 +113,9 @@ export default function MapPage() {
           markers={markers}
           selectedId={selectedId}
           onSelect={select}
-          center={KOREA_CENTER}
-          zoom={7}
-          fitKey={`${region}|${past}`}
+          center={kind.scope === "국내" ? KOREA_CENTER : WORLD_CENTER}
+          zoom={kind.scope === "국내" ? 7 : 2}
+          fitKey={`${kind.scope}|${kind.type}|${region}|${past}`}
           user={user}
           className="h-72 w-full md:h-96"
         />

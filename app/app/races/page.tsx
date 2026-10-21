@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import KindTabs from "@/components/KindTabs";
 import RaceCard from "@/components/RaceCard";
 import { btnGhost, Empty, inputCls } from "@/components/ui";
 import { raceStatus } from "@/lib/derive";
 import { monthKey, today } from "@/lib/date";
+import { matchKind, useKind, type Kind } from "@/lib/kind";
 import { useApp } from "@/lib/store";
-import { DISTANCES, REGIONS } from "@/lib/types";
+import { DISTANCES, REGIONS, TYPE_LABEL } from "@/lib/types";
 
 const PAGE = 12;
 const STATUS_CHIPS = ["전체", "접수 예정", "접수중", "접수 마감"] as const;
@@ -38,11 +40,27 @@ export default function RacesPage() {
   const [past, setPast] = useState(false);
   const [sort, setSort] = useState<"date" | "close">("date");
   const [limit, setLimit] = useState(PAGE);
+  const [kind, setKind] = useKind();
+
+  /** 종류·범위가 바뀌면 그 종류에 없는 지역·종목·시기 선택을 비운다 */
+  const changeKind = (k: Kind) => {
+    setKind(k);
+    setRegion(""); setDistance(""); setMonth(""); setLimit(PAGE);
+  };
 
   const t = today();
+  const inKind = useMemo(() => data.races.filter((r) => matchKind(r, kind)), [data.races, kind]);
+  const regionOptions = useMemo(
+    () => (kind.scope === "국내" ? REGIONS : Array.from(new Set(inKind.map((r) => r.region))).sort()),
+    [kind.scope, inKind],
+  );
+  const distanceOptions = useMemo(
+    () => DISTANCES.filter((d) => inKind.some((r) => r.courses.some((c) => c.distance === d))),
+    [inKind],
+  );
   const list = useMemo(() => {
     const kw = q.trim();
-    return data.races
+    return inKind
       .filter((r) => {
         const s = raceStatus(r, t);
         if (!past && (s === "종료" || s === "취소")) return false;
@@ -50,15 +68,15 @@ export default function RacesPage() {
         if (region && r.region !== region) return false;
         if (distance && !r.courses.some((c) => c.distance === distance)) return false;
         if (month && monthKey(r.date) !== month) return false;
-        if (kw && !`${r.name} ${r.region} ${r.venue}`.includes(kw)) return false;
+        if (kw && !`${r.name} ${r.region} ${r.venue} ${r.city ?? ""}`.includes(kw)) return false;
         return true;
       })
       .sort((a, b) => (sort === "date" ? a.date.localeCompare(b.date) : a.regClose.localeCompare(b.regClose)));
-  }, [data.races, q, region, distance, month, status, past, sort, t]);
+  }, [inKind, q, region, distance, month, status, past, sort, t]);
 
   const months = useMemo(
-    () => Array.from(new Set(data.races.map((r) => monthKey(r.date)))).sort(),
-    [data.races],
+    () => Array.from(new Set(inKind.map((r) => monthKey(r.date)))).sort(),
+    [inKind],
   );
 
   const reset = () => {
@@ -68,6 +86,10 @@ export default function RacesPage() {
   return (
     <div>
       <h1 className="text-xl font-bold">대회</h1>
+
+      <div className="mt-3">
+        <KindTabs kind={kind} onChange={changeKind} />
+      </div>
 
       <div className="relative mt-3">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -93,13 +115,13 @@ export default function RacesPage() {
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <select value={region} onChange={(e) => { setRegion(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label="지역">
-          <option value="">지역 전체</option>
-          {REGIONS.map((r) => <option key={r}>{r}</option>)}
+        <select value={region} onChange={(e) => { setRegion(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label={kind.scope === "국내" ? "지역" : "국가"}>
+          <option value="">{kind.scope === "국내" ? "지역 전체" : "국가 전체"}</option>
+          {regionOptions.map((r) => <option key={r}>{r}</option>)}
         </select>
         <select value={distance} onChange={(e) => { setDistance(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label="종목">
           <option value="">종목 전체</option>
-          {DISTANCES.map((d) => <option key={d}>{d}</option>)}
+          {distanceOptions.map((d) => <option key={d}>{d}</option>)}
         </select>
         <select value={month} onChange={(e) => { setMonth(e.target.value); setLimit(PAGE); }} className={inputCls} aria-label="시기">
           <option value="">시기 전체</option>
@@ -119,7 +141,9 @@ export default function RacesPage() {
         <button onClick={reset} className="text-zinc-500 underline">필터 초기화</button>
       </div>
 
-      <p className="mt-4 text-sm text-zinc-500">조건에 맞는 대회 {list.length}개</p>
+      <p className="mt-4 text-sm text-zinc-500">
+        {kind.scope} {TYPE_LABEL[kind.type]} 중 조건에 맞는 대회 {list.length}개
+      </p>
 
       {list.length === 0 ? (
         <div className="mt-3">

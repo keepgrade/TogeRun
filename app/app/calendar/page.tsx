@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import KindTabs from "@/components/KindTabs";
 import RaceCard from "@/components/RaceCard";
 import { btnGhost, Empty } from "@/components/ui";
 import { addDays, iso, monthKey, parse, today } from "@/lib/date";
+import { matchKind, useKind } from "@/lib/kind";
 import { useApp } from "@/lib/store";
 import type { Race } from "@/lib/types";
 
@@ -16,16 +18,17 @@ export default function CalendarPage() {
   const [month, setMonth] = useState(monthKey(t));
   const [selected, setSelected] = useState<string | null>(t);
   const [onlyFav, setOnlyFav] = useState(false);
+  const [kind, setKind] = useKind();
 
   const [y, m] = month.split("-").map(Number);
 
   const byDate = useMemo(() => {
     const map = new Map<string, Race[]>();
     data.races
-      .filter((r) => !onlyFav || myFavorites.includes(r.id))
+      .filter((r) => matchKind(r, kind) && (!onlyFav || myFavorites.includes(r.id)))
       .forEach((r) => map.set(r.date, [...(map.get(r.date) ?? []), r]));
     return map;
-  }, [data.races, onlyFav, myFavorites]);
+  }, [data.races, kind, onlyFav, myFavorites]);
 
   const cells = useMemo(() => {
     const first = new Date(y, m - 1, 1);
@@ -45,6 +48,9 @@ export default function CalendarPage() {
   return (
     <div>
       <h1 className="text-xl font-bold">캘린더</h1>
+      <div className="mt-3">
+        <KindTabs kind={kind} onChange={setKind} />
+      </div>
 
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1">

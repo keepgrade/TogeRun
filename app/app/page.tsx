@@ -2,7 +2,9 @@
 
 import Hero from "@/components/home/Hero";
 import { Finder, MapPreview } from "@/components/home/FinderAndMap";
-import { AlertBand, BuddySection, CommunitySection, OpenSection, ThisMonthSection, UpcomingSection } from "@/components/home/Lists";
+import {
+  AlertBand, BuddySection, CommunitySection, OpenSection, OverseasSection, ThisMonthSection, TrailSection, UpcomingSection,
+} from "@/components/home/Lists";
 
 /**
  * 홈. 섹션 순서와 배치는 대회 정보 서비스의 홈 구조(히어로+현황 카드 → 탐색 방식 → 지도 →
@@ -20,6 +22,8 @@ export default function Home() {
       <UpcomingSection />
       <ThisMonthSection />
       <OpenSection />
+      <TrailSection />
+      <OverseasSection />
       <AlertBand />
     </div>
   );

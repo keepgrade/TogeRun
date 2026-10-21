@@ -1,5 +1,26 @@
-export type Distance = "5K" | "10K" | "하프" | "풀";
-export const DISTANCES: Distance[] = ["5K", "10K", "하프", "풀"];
+/** 거리 이름. 도로 마라톤(5K·10K·하프·풀)과 트레일(20K·50K·100M 등)을 모두 담는다 */
+export type Distance = string;
+export const ROAD_DISTANCES: Distance[] = ["5K", "10K", "하프", "풀"];
+export const DISTANCES: Distance[] = ["5K", "10K", "20K", "30K", "하프", "풀", "50K", "100K", "100M"];
+
+export type RaceType = "마라톤" | "트레일";
+export const TYPE_LABEL: Record<RaceType, string> = { 마라톤: "마라톤", 트레일: "트레일러닝" };
+export type RaceScope = "국내" | "해외";
+
+export type Currency = "KRW" | "JPY" | "USD" | "EUR" | "GBP" | "HKD" | "SGD" | "THB" | "TWD" | "AUD";
+/** 원화 환산은 PoC용 고정 환율이다. 참고용으로만 쓴다 */
+export const CURRENCY_INFO: Record<Currency, { symbol: string; rate: number }> = {
+  KRW: { symbol: "", rate: 1 },
+  JPY: { symbol: "¥", rate: 9.2 },
+  USD: { symbol: "$", rate: 1380 },
+  EUR: { symbol: "€", rate: 1500 },
+  GBP: { symbol: "£", rate: 1750 },
+  HKD: { symbol: "HK$", rate: 177 },
+  SGD: { symbol: "S$", rate: 1030 },
+  THB: { symbol: "฿", rate: 40 },
+  TWD: { symbol: "NT$", rate: 43 },
+  AUD: { symbol: "A$", rate: 900 },
+};
 
 export type Style = "현장 합류" | "같이 이동" | "페이스 맞춰 같이 완주";
 export const STYLES: Style[] = ["현장 합류", "같이 이동", "페이스 맞춰 같이 완주"];
@@ -26,7 +47,17 @@ export interface ScheduleItem {
 export interface Race {
   id: string;
   name: string;
-  type: "마라톤" | "트레일";
+  type: RaceType;
+  /** 국내/해외. 해외 대회는 region에 국가명을 쓴다 */
+  scope: RaceScope;
+  city?: string;
+  /** 참가비 통화. 없으면 원화 */
+  currency?: Currency;
+  /** 트레일 전용 정보 */
+  elevationGain?: number;
+  timeLimit?: string;
+  difficulty?: "하" | "중" | "상";
+  gear?: string[];
   date: string;
   /** 대회 시작·종료 시각 (HH:MM) */
   startTime: string;
@@ -168,7 +199,7 @@ export interface AlertPref {
 }
 
 export interface Data {
-  version: 6;
+  version: 8;
   users: User[];
   accounts: Record<string, string>;
   meId: string | null;

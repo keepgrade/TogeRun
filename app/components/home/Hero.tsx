@@ -6,7 +6,15 @@ import { useState } from "react";
 import { ArrowRight, CalendarCheck, Flag, Search, Users } from "lucide-react";
 import { buddyClosed, raceStatus } from "@/lib/derive";
 import { fmtDate, monthKey, today } from "@/lib/date";
+import { matchKind, writeKind, type Kind } from "@/lib/kind";
 import { useApp } from "@/lib/store";
+
+const KIND_CHIPS: { label: string; kind: Kind }[] = [
+  { label: "국내 마라톤", kind: { type: "마라톤", scope: "국내" } },
+  { label: "국내 트레일러닝", kind: { type: "트레일", scope: "국내" } },
+  { label: "해외 마라톤", kind: { type: "마라톤", scope: "해외" } },
+  { label: "해외 트레일러닝", kind: { type: "트레일", scope: "해외" } },
+];
 
 /** 목록 화면으로 검색어·상태를 넘긴다. URL 파라미터 대신 세션 저장소를 쓴다. */
 export const HANDOFF = { q: "togerun-q", status: "togerun-status" } as const;
@@ -35,6 +43,11 @@ export default function Hero() {
   const buddies = data.buddyPosts.filter(
     (p) => !myBlocked.includes(p.authorId) && !buddyClosed(p, data.races.find((r) => r.id === p.raceId), t),
   ).length;
+
+  const goKind = (kind: Kind) => {
+    writeKind(kind);
+    router.push("/races");
+  };
 
   const go = (status?: string) => {
     if (status) sessionStorage.setItem(HANDOFF.status, status);
@@ -110,6 +123,18 @@ export default function Hero() {
               <p className="mt-1 text-zinc-500">모집 중 버디</p>
               <p className="text-base font-bold">{buddies}</p>
             </Link>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+            {KIND_CHIPS.map(({ label, kind }) => (
+              <button
+                key={label}
+                onClick={() => goKind(kind)}
+                className="flex items-center justify-between rounded-xl border border-zinc-200 px-3 py-2 hover:border-orange-300"
+              >
+                <span className="text-zinc-600">{label}</span>
+                <span className="font-bold">{live.filter((r) => matchKind(r, kind)).length}</span>
+              </button>
+            ))}
           </div>
           <Link href="/buddy" className="mt-3 flex items-center justify-between rounded-xl bg-orange-50 px-3 py-2.5 text-xs text-orange-900">
             <span>지금 모집 중인 버디를 한곳에서 확인해 보세요</span>

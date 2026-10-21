@@ -7,9 +7,9 @@ import RaceMap from "./RaceMap";
 import { Badge, btnGhost, card, StatusBadge } from "./ui";
 import { raceStatus } from "@/lib/derive";
 import { dday, fmtDate, today } from "@/lib/date";
-import { courseName, feeRange, scaleText, won } from "@/lib/format";
+import { courseName, feeRange, moneyWithKrw, scaleText } from "@/lib/format";
 import { kakaoMapUrl, kakaoRouteUrl, naverMapUrl, STATUS_COLOR } from "@/lib/maps";
-import type { Race } from "@/lib/types";
+import { TYPE_LABEL, type Race } from "@/lib/types";
 
 function Section({ title, right, children }: { title: string; right?: ReactNode; children: ReactNode }) {
   return (
@@ -67,19 +67,25 @@ export default function RaceInfo({ race }: { race: Race }) {
   };
 
   const infoRows: [string, ReactNode][] = [
-    ["대회 유형", race.type],
+    ["대회 유형", `${race.scope} ${TYPE_LABEL[race.type]}`],
     ["대회 기간", fmtDate(race.date)],
     [
       "접수 기간",
       `${withTime(race.regOpen, race.regOpenTime)} ~ ${withTime(race.regClose, race.regCloseTime)}`,
     ],
-    ["장소", `${race.region} · ${race.venue}`],
+    ["장소", race.scope === "해외" ? `${race.region} · ${race.city ?? race.venue}` : `${race.region} · ${race.venue}`],
     ["종목", race.courses.map(courseName).join(", ")],
-    ["참가비", feeRange(race.courses)],
+    ["참가비", feeRange(race.courses, race.currency)],
     ["규모", scaleText(race.scale)],
     ["주최", race.organizer],
     ["주관", race.host],
   ];
+  if (race.type === "트레일") {
+    if (race.elevationGain) infoRows.push(["누적 상승고도", `D+ ${race.elevationGain.toLocaleString("ko-KR")}m`]);
+    if (race.timeLimit) infoRows.push(["제한 시간", race.timeLimit]);
+    if (race.difficulty) infoRows.push(["난이도", race.difficulty]);
+    if (race.gear?.length) infoRows.push(["필수 장비", race.gear.join(", ")]);
+  }
   if (race.phone) {
     infoRows.push([
       "연락처",
@@ -154,7 +160,7 @@ export default function RaceInfo({ race }: { race: Race }) {
             {race.courses.map((c) => (
               <tr key={courseName(c)} className="border-t border-zinc-100">
                 <td className="px-4 py-2">{courseName(c)}</td>
-                <td className="px-4 py-2 text-right">{won(c.fee)}</td>
+                <td className="px-4 py-2 text-right">{moneyWithKrw(c.fee, race.currency)}</td>
               </tr>
             ))}
           </tbody>
@@ -163,6 +169,16 @@ export default function RaceInfo({ race }: { race: Race }) {
           <ShieldAlert size={13} className="mt-0.5 shrink-0" />
           접수·결제는 TogeRun이 아니라 공식 사이트에서 진행해요. 참가 신청 전에 공식 안내를 꼭 확인하세요.
         </p>
+        {race.scope === "해외" && (
+          <p className="border-t border-zinc-100 bg-sky-50 px-4 py-3 text-xs leading-relaxed text-sky-900">
+            해외 대회예요. 접수 일시는 현지 기준이고, 원화 환산은 PoC의 고정 환율을 쓴 참고용이에요. 입국 서류와 항공·숙소는 직접 확인해야 해요.
+          </p>
+        )}
+        {race.type === "트레일" && (
+          <p className="border-t border-zinc-100 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
+            트레일 대회는 필수 장비와 제한 시간을 지키지 못하면 실격될 수 있어요. 참가 전에 공식 안내의 장비 목록을 꼭 확인하세요.
+          </p>
+        )}
       </Section>
 
       <Section title="대회 위치">

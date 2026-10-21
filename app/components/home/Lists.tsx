@@ -10,13 +10,18 @@ import { CountRow, SectionHead } from "./Section";
 import { HANDOFF } from "./Hero";
 import { buddyClosed, raceStatus } from "@/lib/derive";
 import { monthKey, today } from "@/lib/date";
+import { writeKind } from "@/lib/kind";
 import { useApp } from "@/lib/store";
+import type { Race } from "@/lib/types";
+
+/** 홈의 기본 구획은 국내 마라톤만 보여 준다. 트레일러닝과 해외는 아래 별도 구획으로 분리한다 */
+const domesticMarathon = (r: Race) => r.scope === "국내" && r.type === "마라톤";
 
 export function UpcomingSection() {
   const { data } = useApp();
   const t = today();
   const list = data.races
-    .filter((r) => raceStatus(r, t) === "접수 예정")
+    .filter((r) => domesticMarathon(r) && raceStatus(r, t) === "접수 예정")
     .sort((a, b) => a.regOpen.localeCompare(b.regOpen));
 
   return (
@@ -44,7 +49,7 @@ export function ThisMonthSection() {
   const t = today();
   const month = Number(t.slice(5, 7));
   const list = data.races
-    .filter((r) => monthKey(r.date) === monthKey(t) && r.date >= t)
+    .filter((r) => domesticMarathon(r) && monthKey(r.date) === monthKey(t) && r.date >= t)
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return (
@@ -71,7 +76,7 @@ export function OpenSection() {
   const { data } = useApp();
   const t = today();
   const list = data.races
-    .filter((r) => raceStatus(r, t) === "접수중")
+    .filter((r) => domesticMarathon(r) && raceStatus(r, t) === "접수중")
     .sort((a, b) => a.regClose.localeCompare(b.regClose));
 
   return (
@@ -90,6 +95,71 @@ export function OpenSection() {
       ) : (
         <div className="mt-5"><Empty>지금 접수 중인 대회가 없어요.</Empty></div>
       )}
+    </section>
+  );
+}
+
+/** 국내 트레일러닝: 마라톤과 분리해 따로 보여 준다 */
+export function TrailSection() {
+  const { data } = useApp();
+  const t = today();
+  const list = data.races
+    .filter((r) => r.scope === "국내" && r.type === "트레일" && ["접수중", "접수 예정"].includes(raceStatus(r, t)))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  return (
+    <section className="mt-16">
+      <SectionHead
+        eyebrow="Trail running"
+        title={<>산과 숲을 달리는<br className="hidden sm:block" /> 트레일러닝 대회</>}
+        sub="상승고도, 제한 시간, 필수 장비까지 트레일 대회만의 정보를 따로 모아 봤어요."
+        cta={{ href: "/races", label: "트레일러닝 전체 보기", onClick: () => writeKind({ type: "트레일", scope: "국내" }) }}
+      />
+      <CountRow label="접수 중이거나 접수 예정인 트레일러닝" count={list.length} />
+      {list.length ? (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {list.slice(0, 6).map((r) => <CompactRaceCard key={r.id} race={r} showDeadline />)}
+        </div>
+      ) : (
+        <div className="mt-5"><Empty>지금 확인할 수 있는 트레일러닝 대회가 없어요.</Empty></div>
+      )}
+    </section>
+  );
+}
+
+/** 해외 주요 마라톤: 국내 대회와 분리해 따로 보여 준다 */
+export function OverseasSection() {
+  const { data } = useApp();
+  const t = today();
+  const live = data.races.filter((r) => r.scope === "해외" && !["종료", "취소"].includes(raceStatus(r, t)));
+  const marathons = live.filter((r) => r.type === "마라톤").sort((a, b) => a.date.localeCompare(b.date));
+  const trails = live.filter((r) => r.type === "트레일").sort((a, b) => a.date.localeCompare(b.date));
+
+  return (
+    <section className="mt-16">
+      <SectionHead
+        eyebrow="Overseas"
+        title={<>해외 주요 마라톤을<br className="hidden sm:block" /> 한곳에서 확인하세요</>}
+        sub="도쿄, 뉴욕, 런던 같은 해외 대회를 국내 대회와 따로 모았어요. 참가비는 현지 통화와 원화 환산을 함께 보여 줘요."
+        cta={{ href: "/races", label: "해외 대회 전체 보기", onClick: () => writeKind({ type: "마라톤", scope: "해외" }) }}
+      />
+      <CountRow label="해외 마라톤" count={marathons.length} />
+      {marathons.length ? (
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {marathons.slice(0, 6).map((r) => <BigRaceCard key={r.id} race={r} />)}
+        </div>
+      ) : (
+        <div className="mt-5"><Empty>확인할 수 있는 해외 마라톤이 없어요.</Empty></div>
+      )}
+      {trails.length > 0 && (
+        <>
+          <CountRow label="해외 트레일러닝" count={trails.length} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {trails.slice(0, 3).map((r) => <CompactRaceCard key={r.id} race={r} />)}
+          </div>
+        </>
+      )}
+      <p className="mt-3 text-xs text-zinc-400">해외 대회의 일정·접수·참가비는 PoC 샘플이에요. 실제 정보는 공식 사이트에서 확인하세요.</p>
     </section>
   );
 }

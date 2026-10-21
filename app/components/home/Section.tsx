@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -7,7 +9,7 @@ export function SectionHead({
   eyebrow: string;
   title: ReactNode;
   sub?: string;
-  cta?: { href: string; label: string };
+  cta?: { href: string; label: string; onClick?: () => void };
 }) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -19,6 +21,7 @@ export function SectionHead({
       {cta && (
         <Link
           href={cta.href}
+          onClick={cta.onClick}
           className="inline-flex shrink-0 items-center justify-center rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:border-orange-400 hover:text-orange-700"
         >
           {cta.label}

@@ -7,7 +7,7 @@ import { raceStats, raceStatus } from "@/lib/derive";
 import { dday, fmtDate, parse, today } from "@/lib/date";
 import { feeRange, scaleText, uniqueDistances } from "@/lib/format";
 import { useApp } from "@/lib/store";
-import type { Race } from "@/lib/types";
+import { TYPE_LABEL, type Race } from "@/lib/types";
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -37,14 +37,15 @@ export function BigRaceCard({ race }: { race: Race }) {
         <span className="rounded-full bg-zinc-900 px-2.5 py-1 text-xs font-bold text-white">{dday(race.date, t)}</span>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <Badge tone="ink">{race.type}</Badge>
+        <Badge tone="ink">{TYPE_LABEL[race.type]}</Badge>
+        {race.scope === "해외" && <Badge tone="blue">해외</Badge>}
         <StatusBadge status={status} />
       </div>
       <h3 className="mt-2 text-lg font-bold leading-snug group-hover:text-orange-700">{race.name}</h3>
       <p className="mt-1 flex items-center gap-1 text-sm text-zinc-500">
         <MapPin size={14} /> {race.region} · {race.venue}
       </p>
-      <p className="mt-3 text-sm font-semibold">{feeRange(race.courses)}</p>
+      <p className="mt-3 text-sm font-semibold">{feeRange(race.courses, race.currency)}</p>
       <p className="mt-1 text-sm text-zinc-600">{uniqueDistances(race.courses).join(" / ")}</p>
       <p className="mt-0.5 text-sm text-zinc-500">{scaleText(race.scale)}</p>
       <div className="mt-4 flex items-center justify-between rounded-xl bg-orange-50 px-3 py-2 text-xs">

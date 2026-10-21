@@ -26,6 +26,7 @@ export default function RaceCard({ race, extra }: { race: Race; extra?: string }
           <StatusBadge status={status} />
           {note && <span className="text-xs font-semibold text-orange-700">{note}</span>}
           {race.type === "트레일" && <Badge tone="ink">트레일</Badge>}
+          {race.scope === "해외" && <Badge tone="blue">해외</Badge>}
         </div>
         <span className="shrink-0 text-sm font-bold text-zinc-900">{dday(race.date, t)}</span>
       </div>
@@ -40,7 +41,7 @@ export default function RaceCard({ race, extra }: { race: Race; extra?: string }
           <Badge key={d}>{d}</Badge>
         ))}
         <span className="ml-1 text-xs text-zinc-500">
-          {feeRange(race.courses)} · {scaleText(race.scale)}
+          {feeRange(race.courses, race.currency)} · {scaleText(race.scale)}
         </span>
       </div>
       <div className="mt-3 flex items-center gap-3 border-t border-zinc-100 pt-2 text-xs text-zinc-500">

@@ -72,7 +72,7 @@ export function generateRaces(rng: Rng, count: number, startNumber: number): Rac
   for (let i = 0; i < count; i++) {
     const id = `r${startNumber + i}`;
     const region = pick(rng, REGIONS);
-    const trail = chance(rng, 0.14);
+    const trail = chance(rng, 0.24);
     let name = "";
     let night = false;
     for (let tries = 0; tries < 20; tries++) {
@@ -126,6 +126,15 @@ export function generateRaces(rng: Rng, count: number, startNumber: number): Rac
       id,
       name,
       type: trail ? "트레일" : "마라톤",
+      scope: "국내",
+      ...(trail
+        ? {
+            elevationGain: int(rng, 3, 20) * 100,
+            timeLimit: `${courses[courses.length - 1].distance} ${int(rng, 5, 12)}시간`,
+            difficulty: pick(rng, ["하", "중", "중", "상"] as const),
+            gear: pick(rng, [["방수 재킷", "물통 500ml 이상"], ["방수 재킷", "헤드랜턴", "비상 호루라기"], ["트레일 러닝화", "물통 500ml 이상", "보온 의류"]]),
+          }
+        : {}),
       date: d(dateO),
       startTime,
       endTime: addMinutes(startTime, night ? 180 : int(rng, 4, 7) * 60),
@@ -227,6 +236,12 @@ const INTROS = [
   "출발선 근처에서 만나요", "완주 메달 같이 받아요", "응원 겸 같이 뛰어도 좋아요",
   "비 와도 같이 뛰실 분", "코스 답사 같이 해보실 분", "이번이 세 번째 대회예요, 편하게 연락 주세요",
 ];
+const OVERSEAS_INTROS = [
+  "항공편을 같이 알아보고 함께 가실 분 구해요", "숙소를 나눠 쓰실 분이 있으면 좋겠어요", "첫 해외 대회라 같이 가실 분을 찾아요",
+  "현지에서 같이 이동하고 출발선까지 함께 가요", "대회 끝나고 같이 여행하실 분 환영해요", "인천공항에서 만나 같이 출국해요",
+  "엑스포 배번 수령도 같이 가요", "혼자 가기 걱정돼서 함께하실 분을 구해요", "메이저 대회 완주 도전, 같이 준비해요",
+  "환전·유심 정보도 같이 공유해요",
+];
 const PACES = ["4'50\"", "5'00\"", "5'20\"", "5'40\"", "6'00\"", "6'20\"", "6'40\"", "7'00\"", "7'30\""];
 const STYLE_POOL: Style[] = ["현장 합류", "현장 합류", "현장 합류", "같이 이동", "같이 이동", "페이스 맞춰 같이 완주", "페이스 맞춰 같이 완주"];
 
@@ -236,7 +251,11 @@ export function generateBuddies(rng: Rng, races: Race[], userIds: string[], coun
     const s = raceStatus(r, t);
     return s !== "종료" && s !== "취소" && diffDays(r.date, t) >= 1;
   });
-  const weighted = eligible.flatMap((r) => Array(1 + Math.floor(r.baseInterest / 120)).fill(r) as Race[]);
+  // 해외 대회는 관심도가 높게 잡혀 있어서 가중치를 절반으로 줄여 국내 대회 모집글이 더 많게 한다
+  const weighted = eligible.flatMap((r) => {
+    const w = 1 + Math.floor(r.baseInterest / 120);
+    return Array(r.scope === "해외" ? Math.max(1, Math.floor(w / 2)) : w).fill(r) as Race[];
+  });
   const posts: BuddyPost[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -244,18 +263,19 @@ export function generateBuddies(rng: Rng, races: Race[], userIds: string[], coun
     const rd = diffDays(race.date, t);
     const until = addDays(t, int(rng, -2, Math.min(rd - 1, 40)));
     const id = `gb${String(startNumber + i).padStart(2, "0")}`;
+    const overseas = race.scope === "해외";
     posts.push({
       id,
       raceId: race.id,
       authorId: pick(rng, userIds),
       distance: pick(rng, race.courses).distance,
-      style: pick(rng, STYLE_POOL),
+      style: overseas ? pick(rng, ["같이 이동", "같이 이동", "현장 합류", "페이스 맞춰 같이 완주"] as Style[]) : pick(rng, STYLE_POOL),
       capacity: pick(rng, [1, 1, 2, 2, 3, 4]),
       recruitUntil: until,
-      departRegion: chance(rng, 0.55) ? race.region : pick(rng, REGIONS),
+      departRegion: overseas ? pick(rng, ["서울", "인천", "인천", "부산", "대구", "경기"]) : chance(rng, 0.55) ? race.region : pick(rng, REGIONS),
       chatUrl: `https://open.kakao.com/o/demo${id}`,
       targetPace: chance(rng, 0.45) ? pick(rng, PACES) : undefined,
-      intro: chance(rng, 0.85) ? pick(rng, INTROS) : undefined,
+      intro: overseas ? (chance(rng, 0.9) ? pick(rng, OVERSEAS_INTROS) : undefined) : chance(rng, 0.85) ? pick(rng, INTROS) : undefined,
       closed: chance(rng, 0.1),
       createdAt: new Date(Date.now() - rng() * 10 * 86400000).toISOString(),
     });
@@ -317,6 +337,34 @@ const POOLS: Record<Tag, PostTemplate[]> = {
     { title: "마라톤 입문 한 달 차 소감", body: "생각보다 중독성이 있네요. 기록은 느리지만 달리고 나면 하루가 개운해요." },
     { title: "완주 메달 모으시는 분 계세요?", body: "벽에 걸어 두는 재미가 쏠쏠해요. 이번에도 하나 추가하러 갑니다." },
     { title: "첫 풀코스 도전합니다", body: "신청 버튼 누르고 한참 고민했어요. 후회하지 않도록 남은 기간 열심히 준비해 보려고요. 응원 부탁드려요!" },
+  ],
+};
+
+/** 해외 대회 전용 글 템플릿 */
+const OVERSEAS_POOLS: Record<Tag, PostTemplate[]> = {
+  질문: [
+    { title: "추첨 신청은 어떻게 하나요?", body: "처음 해외 대회에 도전해 보려는데, 추첨제 대회는 신청 기간과 결과 발표가 언제쯤인지 헷갈려요. 경험 있으신 분들 알려 주세요." },
+    { title: "입국 서류는 어떻게 준비하셨어요?", body: "대회 참가 확인증이 따로 필요한지, 입국할 때 어떤 서류를 챙기셨는지 궁금해요." },
+    { title: "환전은 어디서 하는 게 좋을까요?", body: "현지 카드 결제 위주로 갈지 현금을 따로 챙길지 고민이에요. 대회장 주변에서 현금이 필요한 일이 많았나요?" },
+    { title: "시차 적응은 어떻게 하세요?", body: "대회 며칠 전에 도착하는 게 좋을까요? 시차가 큰 곳이라 컨디션이 걱정돼요." },
+  ],
+  "정보·팁": [
+    { title: "엑스포에서 배번 수령할 때 팁", body: "여권을 꼭 지참하세요. 오후보다 오전에 가면 줄이 짧았어요. 사이즈 교환이 어려우니 신청할 때 신중하게 고르세요." },
+    { title: "대회 전날 숙소 위치 추천", body: "출발선까지 걸어갈 수 있는 곳에 묵으면 아침이 훨씬 여유로워요. 일찍 예약할수록 가격이 낮았어요." },
+    { title: "공항에서 시내까지 이동 방법", body: "공항철도가 가장 빠르고 저렴했어요. 짐이 많다면 택시가 편하지만 시간대에 따라 요금 차이가 커요." },
+    { title: "현지 날씨와 복장 정리", body: "출발 시각이 이르면 체감 온도가 낮아요. 버릴 수 있는 겉옷을 챙기면 출발 대기 중에 유용했어요." },
+  ],
+  "이동·주차": [
+    { title: "대중교통 패스 추천", body: "대회 전후로 이동이 많아서 1일권보다 3일권이 이득이었어요. 앱 하나로 노선 검색이 되니 미리 받아 두세요." },
+    { title: "출발지까지 이동 시간 정리", body: "대회 당일에는 지하철이 일찍 다니지만 혼잡해요. 한 시간 일찍 도착한다고 생각하고 움직이세요." },
+    { title: "짐 보관 서비스 이용 후기", body: "행사장 짐 보관은 줄이 길어서 숙소에 두고 가볍게 오는 걸 추천해요. 귀국이 같은 날이면 보관 마감 시간을 확인하세요." },
+    { title: "귀국 항공편은 언제가 좋을까요?", body: "대회 다음 날 저녁 이후가 여유 있었어요. 같은 날 밤 비행기는 시상식과 짐 정리 때문에 빠듯했어요." },
+  ],
+  잡담: [
+    { title: "첫 해외 대회 설렘 공유해요", body: "신청을 완료하고 나니 실감이 나요. 같이 가는 분이 있으면 좋겠다는 생각도 들고요." },
+    { title: "여행 겸 대회 일정 어떻게 짜세요?", body: "대회 전후로 관광을 어떻게 배분하는지 궁금해요. 다리 컨디션 때문에 고민이에요." },
+    { title: "메이저 대회 완주 메달 모으시는 분?", body: "한 곳씩 도전하는 재미가 있어요. 올해 목표는 두 곳이에요." },
+    { title: "혼자 가도 괜찮을까요?", body: "현지에서 외롭지 않을지 걱정이에요. 비슷한 일정으로 가시는 분들이 있으면 좋겠어요." },
   ],
 };
 
@@ -397,24 +445,27 @@ export function generateReviews(rng: Rng, races: Race[], userIds: string[], exis
   return out;
 }
 
-export function generateCommunity(rng: Rng, races: Race[], userIds: string[], count: number, startNumber: number) {
+export function generateCommunity(rng: Rng, races: Race[], userIds: string[], count: number, startNumber: number, commentStart = 1) {
   const t = today();
   const eligible = races.filter((r) => raceStatus(r, t) !== "취소");
-  const weighted = eligible.flatMap((r) => Array(1 + Math.floor(r.baseInterest / 100)).fill(r) as Race[]);
+  const weighted = eligible.flatMap((r) => {
+    const w = 1 + Math.floor(r.baseInterest / 100);
+    return Array(r.scope === "해외" ? Math.max(1, Math.floor(w / 2)) : w).fill(r) as Race[];
+  });
   const tags = Object.keys(POOLS) as Tag[];
   const posts: CPost[] = [];
   const comments: Comment[] = [];
   const usedPerRace = new Set<string>();
-  let commentNo = 1;
+  let commentNo = commentStart;
 
   for (let i = 0; i < count; i++) {
     const tag = tags[i % tags.length];
-    const pool = POOLS[tag];
+    const poolFor = (r: Race) => (r.scope === "해외" && chance(rng, 0.85) ? OVERSEAS_POOLS[tag] : POOLS[tag]);
     let race = pick(rng, weighted);
-    let tpl = pick(rng, pool);
+    let tpl = pick(rng, poolFor(race));
     for (let tries = 0; tries < 12 && usedPerRace.has(`${race.id}|${tpl.title}`); tries++) {
       race = pick(rng, weighted);
-      tpl = pick(rng, pool);
+      tpl = pick(rng, poolFor(race));
     }
     usedPerRace.add(`${race.id}|${tpl.title}`);
 

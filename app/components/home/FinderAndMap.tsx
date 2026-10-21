@@ -57,7 +57,7 @@ export function MapPreview() {
       data.races
         .filter((r) => {
           const s = raceStatus(r, t);
-          return s !== "종료" && s !== "취소";
+          return r.scope === "국내" && s !== "종료" && s !== "취소";
         })
         .map((r) => ({ id: r.id, lat: r.lat, lng: r.lng, title: r.name, color: STATUS_COLOR[raceStatus(r, t)] })),
     [data.races, t],
