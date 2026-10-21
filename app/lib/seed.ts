@@ -1,6 +1,7 @@
 import { addDays, today } from "./date";
 import type { BuddyPost, CPost, Comment, Data, Race, Review } from "./types";
 import { defaultProfile } from "./types";
+import { generateBuddies, generateCommunity, generateRaces, generateUsers, makeRng } from "./seedGen";
 
 /** 대회별 지도 좌표(위도, 경도). 해당 지역 근처의 대략적인 값이다. */
 const GEO: Record<string, [number, number]> = {
@@ -289,21 +290,29 @@ export function buildSeed(): Data {
     { id: "m03", postId: "c05", authorId: "u2", body: "정보 감사해요. 지하철로 가야겠어요.", createdAt: stamp(-1) },
   ];
 
+  // 직접 쓴 20개 대회 위에 생성기로 만든 더미 데이터를 더한다 (고정 시드라 결과가 같다)
+  const rng = makeRng(20261022);
+  const allRaces = [...races, ...generateRaces(rng, 44, 21)];
+  const genUsers = generateUsers(rng, users.map((u) => u.nickname), 16);
+  const allUserIds = [...users.map((u) => u.id), ...genUsers.users.map((u) => u.id)];
+  const genBuddies = generateBuddies(rng, allRaces, allUserIds, 52, 11);
+  const genCommunity = generateCommunity(rng, allRaces, allUserIds, 48, 7);
+
   return {
-    version: 3,
-    users,
+    version: 4,
+    users: [...users, ...genUsers.users],
     accounts: {},
     meId: null,
-    profiles,
-    histories,
-    races,
+    profiles: { ...profiles, ...genUsers.profiles },
+    histories: { ...histories, ...genUsers.histories },
+    races: allRaces,
     favorites: {},
     alertPrefs: {},
     blocked: {},
-    buddyPosts,
+    buddyPosts: [...buddyPosts, ...genBuddies],
     reviews,
-    cposts,
-    comments,
+    cposts: [...cposts, ...genCommunity.posts],
+    comments: [...comments, ...genCommunity.comments],
     reports: [],
     raceErrors: [],
   };
