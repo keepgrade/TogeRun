@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import SafetyActions from "@/components/SafetyActions";
 import { Badge, btnGhost, btnPrimary, card, Empty, inputCls } from "@/components/ui";
 import { timeAgo } from "@/lib/date";
 import { uid, useApp, useGuard } from "@/lib/store";
@@ -21,6 +22,20 @@ export default function CommunityDetailPage() {
 
   if (!post || !race) {
     return <Empty action={<Link href="/community" className={btnGhost}>커뮤니티로</Link>}>찾을 수 없는 글이에요.</Empty>;
+  }
+
+  if (myBlocked.includes(post.authorId)) {
+    return (
+      <Empty
+        action={
+          <button onClick={() => a.unblock(post.authorId)} className={btnGhost}>
+            차단 해제하고 보기
+          </button>
+        }
+      >
+        차단한 사용자의 글이에요.
+      </Empty>
+    );
   }
 
   const comments = data.comments.filter((c) => c.postId === post.id && !myBlocked.includes(c.authorId));
@@ -61,10 +76,19 @@ export default function CommunityDetailPage() {
 
       <div className={`${card} mt-4 whitespace-pre-wrap p-5 text-sm leading-relaxed`}>{post.body}</div>
 
-      {mine && (
+      {mine ? (
         <div className="mt-3 flex gap-2">
           <Link href={`/community/${post.id}/edit`} className={btnGhost}>수정</Link>
           <button onClick={remove} className={btnGhost}>삭제</button>
+        </div>
+      ) : (
+        <div className="mt-3">
+          <SafetyActions
+            targetType="커뮤니티 글"
+            targetId={post.id}
+            authorId={post.authorId}
+            onBlocked={() => router.replace(`/races/${race.id}`)}
+          />
         </div>
       )}
 
@@ -80,6 +104,11 @@ export default function CommunityDetailPage() {
                 )}
               </div>
               <p className="mt-1 whitespace-pre-wrap text-zinc-800">{c.body}</p>
+              {me?.id !== c.authorId && (
+                <div className="mt-2">
+                  <SafetyActions targetType="댓글" targetId={c.id} authorId={c.authorId} compact />
+                </div>
+              )}
             </li>
           ))}
         </ul>

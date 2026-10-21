@@ -4,10 +4,11 @@ import Link from "next/link";
 import BuddyCard from "@/components/BuddyCard";
 import RaceCard from "@/components/RaceCard";
 import { btnGhost, btnPrimary, card, Empty } from "@/components/ui";
+import { timeAgo } from "@/lib/date";
 import { useApp, useGuard } from "@/lib/store";
 
 export default function MePage() {
-  const { data, me, myFavorites, a } = useApp();
+  const { data, me, myFavorites, myBlocked, userName, a } = useApp();
   const guard = useGuard();
 
   if (!me) {
@@ -20,6 +21,7 @@ export default function MePage() {
 
   const mine = data.buddyPosts.filter((p) => p.authorId === me.id);
   const saved = data.races.filter((r) => myFavorites.includes(r.id));
+  const myReports = data.reports.filter((r) => r.reporterId === me.id);
 
   return (
     <div>
@@ -47,6 +49,38 @@ export default function MePage() {
         </div>
       ) : (
         <Empty action={<Link href="/races" className={btnGhost}>대회 둘러보기</Link>}>아직 쓴 모집글이 없어요.</Empty>
+      )}
+
+      <h2 className="mb-2 mt-6 text-lg font-bold">차단 목록 {myBlocked.length}</h2>
+      {myBlocked.length ? (
+        <ul className="space-y-2">
+          {myBlocked.map((id) => (
+            <li key={id} className={`${card} flex items-center justify-between p-3 text-sm`}>
+              <span>{userName(id)}</span>
+              <button onClick={() => a.unblock(id)} className={btnGhost}>차단 해제</button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Empty>차단한 사용자가 없어요.</Empty>
+      )}
+
+      <h2 className="mb-2 mt-6 text-lg font-bold">내 신고 내역 {myReports.length}</h2>
+      {myReports.length ? (
+        <ul className="space-y-2">
+          {myReports.map((r) => (
+            <li key={r.id} className={`${card} p-3 text-sm`}>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">{r.targetType} · {r.reason}</span>
+                <span className="text-xs text-emerald-700">접수됨</span>
+              </div>
+              {r.detail && <p className="mt-1 text-zinc-600">{r.detail}</p>}
+              <p className="mt-1 text-xs text-zinc-400">{timeAgo(r.createdAt)} · 운영자가 확인 중이에요</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Empty>접수한 신고가 없어요.</Empty>
       )}
 
       <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-600">

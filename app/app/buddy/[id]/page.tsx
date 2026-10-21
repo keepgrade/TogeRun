@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import PublicProfile from "@/components/PublicProfile";
+import SafetyActions from "@/components/SafetyActions";
 import { Badge, btnGhost, btnPrimary, card, Empty } from "@/components/ui";
 import { buddyClosed } from "@/lib/derive";
 import { dday, fmtDate, today } from "@/lib/date";
@@ -12,7 +13,7 @@ import { useApp, useGuard } from "@/lib/store";
 export default function BuddyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data, me, userName, a } = useApp();
+  const { data, me, myBlocked, userName, a } = useApp();
   const guard = useGuard();
   const t = today();
 
@@ -25,6 +26,20 @@ export default function BuddyDetailPage() {
 
   const closed = buddyClosed(post, race, t);
   const mine = me?.id === post.authorId;
+
+  if (myBlocked.includes(post.authorId)) {
+    return (
+      <Empty
+        action={
+          <button onClick={() => a.unblock(post.authorId)} className={btnGhost}>
+            차단 해제하고 보기
+          </button>
+        }
+      >
+        차단한 사용자의 모집글이에요.
+      </Empty>
+    );
+  }
 
   const rows: [string, string][] = [
     ["대회", race.name],
@@ -91,6 +106,15 @@ export default function BuddyDetailPage() {
             <p className="mt-2 text-xs text-zinc-500">
               연락은 오픈채팅으로만 해요. 처음 만날 때는 사람이 많은 장소에서, 개인정보는 먼저 주지 마세요. (PoC: 링크는 샘플이라 열리지 않을 수 있어요)
             </p>
+            <div className="mt-4 space-y-2 border-t border-zinc-200 pt-4">
+              <SafetyActions
+                targetType="모집글"
+                targetId={post.id}
+                authorId={post.authorId}
+                onBlocked={() => router.replace(`/races/${race.id}`)}
+              />
+              <SafetyActions targetType="사용자" targetId={post.authorId} authorId={post.authorId} showBlock={false} />
+            </div>
           </>
         )}
       </div>
