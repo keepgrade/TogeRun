@@ -1,7 +1,7 @@
 import { addDays, today } from "./date";
 import type { BuddyPost, CPost, Comment, Data, Race, Review } from "./types";
 import { defaultProfile } from "./types";
-import { generateBuddies, generateCommunity, generateRaces, generateUsers, makeRng } from "./seedGen";
+import { generateBuddies, generateCommunity, generateRaces, generateReviews, generateUsers, makeRng } from "./seedGen";
 
 /** 대회별 지도 좌표(위도, 경도). 해당 지역 근처의 대략적인 값이다. */
 const GEO: Record<string, [number, number]> = {
@@ -297,9 +297,10 @@ export function buildSeed(): Data {
   const allUserIds = [...users.map((u) => u.id), ...genUsers.users.map((u) => u.id)];
   const genBuddies = generateBuddies(rng, allRaces, allUserIds, 52, 11);
   const genCommunity = generateCommunity(rng, allRaces, allUserIds, 48, 7);
+  const genReviews = generateReviews(rng, allRaces, allUserIds, reviews, 1);
 
   return {
-    version: 4,
+    version: 5,
     users: [...users, ...genUsers.users],
     accounts: {},
     meId: null,
@@ -310,7 +311,7 @@ export function buildSeed(): Data {
     alertPrefs: {},
     blocked: {},
     buddyPosts: [...buddyPosts, ...genBuddies],
-    reviews,
+    reviews: [...reviews, ...genReviews],
     cposts: [...cposts, ...genCommunity.posts],
     comments: [...comments, ...genCommunity.comments],
     reports: [],

@@ -146,6 +146,3 @@ export function CommunityTab({ race }: { race: Race }) {
   );
 }
 
-export function ComingTab({ name }: { name: string }) {
-  return <Empty>{name} 탭은 PoC 다음 단계에서 만듭니다.</Empty>;
-}

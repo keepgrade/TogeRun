@@ -1,7 +1,7 @@
 import { addDays, diffDays, today } from "./date";
 import { raceStatus } from "./derive";
 import type {
-  BuddyPost, CPost, Comment, Course, Distance, Gender, Profile, Race, RunRecord, Style, Tag, User,
+  BuddyPost, CPost, Comment, Course, Distance, Gender, Profile, Race, Review, RunRecord, Style, Tag, User,
 } from "./types";
 import { AGE_BANDS, REGIONS } from "./types";
 
@@ -328,6 +328,74 @@ const COMMENTS = [
   "완주 응원합니다!", "저도 이번이 첫 대회예요.", "공감해요.", "혹시 다른 방법도 있을까요?",
   "대회장에서 뵈어요!", "맞아요, 일찍 가는 게 마음 편해요.", "참고하겠습니다.", "컨디션 관리 잘 하세요.",
 ];
+
+const REVIEW_FRAGS = {
+  course: [
+    "코스가 평탄해서 달리기 좋았어요.", "후반 오르막이 생각보다 힘들었어요.", "코스 안내 표지가 잘 되어 있었어요.",
+    "강변 구간 경치가 좋았어요.", "반환점 위치가 헷갈렸어요.", "노면 상태가 좋아서 기록 내기에 괜찮았어요.",
+  ],
+  operation: [
+    "급수대 간격이 적당했어요.", "출발 구간이 붐벼서 초반에 막혔어요.", "자원봉사자분들이 친절했어요.",
+    "물품 보관 줄이 길었어요.", "기록 칩 수령과 반납 안내가 명확했어요.", "결승선 부근 동선이 혼잡했어요.",
+  ],
+  access: [
+    "지하철역에서 가까워 편했어요.", "주차가 어려워서 대중교통을 추천해요.", "셔틀 운행이 잘 되어 있었어요.",
+    "대회 후 귀가 혼잡이 심했어요.", "새벽 첫차로도 시간에 맞게 도착했어요.",
+  ],
+  goods: [
+    "기념품이 알찼어요.", "완주 메달 디자인이 마음에 들었어요.", "티셔츠 사이즈가 작게 나왔어요.",
+    "기념품은 조금 아쉬웠어요.", "완주 후 간식이 넉넉했어요.",
+  ],
+  closing: [
+    "내년에도 참가하고 싶어요.", "처음 나가는 분께 추천합니다.", "전체적으로 만족스러웠어요.",
+    "다음에는 친구와 같이 가려고요.", "기록 욕심 없이 즐기기 좋았어요.", "준비를 더 하고 갈 걸 그랬어요.",
+  ],
+} as const;
+
+/** 끝난 대회마다 리뷰를 만든다. existing에 이미 있는 (대회, 작성자) 조합은 피한다. */
+export function generateReviews(rng: Rng, races: Race[], userIds: string[], existing: Review[], startNumber: number): Review[] {
+  const t = today();
+  const out: Review[] = [];
+  let no = startNumber;
+
+  for (const race of races.filter((r) => raceStatus(r, t) === "종료")) {
+    const taken = new Set(existing.filter((v) => v.raceId === race.id).map((v) => v.authorId));
+    const n = int(rng, 3, 9);
+    for (let k = 0; k < n; k++) {
+      const author = pick(rng, userIds);
+      if (taken.has(author)) continue;
+      taken.add(author);
+
+      const roll = rng();
+      const rating = roll < 0.45 ? 5 : roll < 0.8 ? 4 : roll < 0.93 ? 3 : int(rng, 1, 2);
+      const near = () => Math.max(1, Math.min(5, rating + int(rng, -1, 1)));
+      const parts: Review["parts"] = {};
+      const frags: string[] = [];
+      (["course", "operation", "access", "goods"] as const).forEach((key) => {
+        if (chance(rng, 0.55)) {
+          parts[key] = near();
+          frags.push(pick(rng, REVIEW_FRAGS[key]));
+        }
+      });
+      if (!frags.length) frags.push(pick(rng, REVIEW_FRAGS.course));
+      frags.push(pick(rng, REVIEW_FRAGS.closing));
+
+      const base = new Date(`${race.date}T12:00:00`).getTime();
+      const when = Math.min(Date.now() - 60000, base + int(rng, 1, 8) * 86400000 + rng() * 6 * 3600000);
+      out.push({
+        id: `gv${String(no++).padStart(3, "0")}`,
+        raceId: race.id,
+        authorId: author,
+        distance: pick(rng, race.courses).distance,
+        rating,
+        parts,
+        body: frags.join(" "),
+        createdAt: new Date(when).toISOString(),
+      });
+    }
+  }
+  return out;
+}
 
 export function generateCommunity(rng: Rng, races: Race[], userIds: string[], count: number, startNumber: number) {
   const t = today();

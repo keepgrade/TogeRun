@@ -41,6 +41,38 @@ export function Stars({ value, size = 14 }: { value: number; size?: number }) {
   );
 }
 
+/** 별점 입력(1~5). clearable이면 선택 항목처럼 지울 수 있다. */
+export function StarInput({ value, onChange, label, clearable, size = 24 }: {
+  value: number;
+  onChange: (v: number) => void;
+  label: string;
+  clearable?: boolean;
+  size?: number;
+}) {
+  return (
+    <div role="radiogroup" aria-label={label} className="inline-flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          role="radio"
+          aria-checked={value === n}
+          aria-label={`${label} ${n}점`}
+          onClick={() => onChange(n)}
+          className="rounded p-0.5 text-amber-500 hover:scale-110"
+        >
+          <Star size={size} fill={n <= value ? "currentColor" : "none"} />
+        </button>
+      ))}
+      {clearable && value > 0 && (
+        <button type="button" onClick={() => onChange(0)} className="ml-1 text-xs text-zinc-400 underline">
+          지우기
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function Empty({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
     <div className="rounded-xl border border-dashed border-zinc-300 bg-white px-4 py-10 text-center text-sm text-zinc-500">

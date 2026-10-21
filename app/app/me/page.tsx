@@ -23,6 +23,7 @@ export default function MePage() {
   const mine = data.buddyPosts.filter((p) => p.authorId === me.id);
   const saved = data.races.filter((r) => myFavorites.includes(r.id));
   const myReports = data.reports.filter((r) => r.reporterId === me.id);
+  const myReviews = data.reviews.filter((v) => v.authorId === me.id);
 
   return (
     <div>
@@ -52,6 +53,28 @@ export default function MePage() {
         </div>
       ) : (
         <Empty action={<Link href="/races" className={btnGhost}>대회 둘러보기</Link>}>저장한 대회가 없어요.</Empty>
+      )}
+
+      <h2 className="mb-2 mt-6 text-lg font-bold">내 리뷰 {myReviews.length}</h2>
+      {myReviews.length ? (
+        <ul className="space-y-2">
+          {myReviews.map((v) => {
+            const race = data.races.find((r) => r.id === v.raceId);
+            return (
+              <li key={v.id}>
+                <Link href={`/races/${v.raceId}`} className={`${card} block p-3 hover:border-orange-300`}>
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="truncate font-medium">{race?.name ?? "알 수 없는 대회"}</span>
+                    <span className="shrink-0 text-amber-600">★ {v.rating.toFixed(1)}</span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-sm text-zinc-600">{v.body}</p>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <Empty>아직 쓴 리뷰가 없어요. 참가한 대회가 끝나면 리뷰를 남길 수 있어요.</Empty>
       )}
 
       <h2 className="mb-2 mt-6 text-lg font-bold">내 모집글 {mine.length}</h2>

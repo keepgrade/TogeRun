@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
 import FavoriteBar from "@/components/FavoriteBar";
 import RaceInfo from "@/components/RaceInfo";
-import { BuddyTab, ComingTab, CommunityTab } from "@/components/RaceTabs";
+import { ReviewTab } from "@/components/ReviewTab";
+import { BuddyTab, CommunityTab } from "@/components/RaceTabs";
 import { Empty, StatusBadge, btnGhost, card } from "@/components/ui";
 import { raceStats, raceStatus } from "@/lib/derive";
 import { dday, fmtDate, today } from "@/lib/date";
@@ -24,7 +25,14 @@ type TabKey = (typeof TABS)[number]["key"];
 export default function RaceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, me } = useApp();
-  const [tab, setTab] = useState<TabKey>("buddy");
+  // 리뷰 작성 후처럼 특정 탭으로 돌아와야 할 때 세션 저장소로 넘겨받는다. 소비는 마운트 후 효과에서 한다.
+  const [tab, setTab] = useState<TabKey>(() => {
+    const t = sessionStorage.getItem("togerun-tab");
+    return TABS.some((x) => x.key === t) ? (t as TabKey) : "buddy";
+  });
+  useEffect(() => {
+    sessionStorage.removeItem("togerun-tab");
+  }, []);
 
   const race = data.races.find((r) => r.id === id);
   if (!race) {
@@ -112,7 +120,7 @@ export default function RaceDetailPage() {
       <div className="mt-4">
         {tab === "info" && <RaceInfo race={race} />}
         {tab === "buddy" && <BuddyTab race={race} />}
-        {tab === "review" && <ComingTab name="리뷰" />}
+        {tab === "review" && <ReviewTab race={race} />}
         {tab === "community" && <CommunityTab race={race} />}
       </div>
     </div>

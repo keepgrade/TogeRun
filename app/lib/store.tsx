@@ -8,7 +8,7 @@ import type {
 } from "./types";
 import { defaultProfile } from "./types";
 
-const KEY = "togerun-poc-v4";
+const KEY = "togerun-poc-v5";
 const NEXT_KEY = "togerun-poc-next";
 
 export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -22,7 +22,7 @@ function load(): Data {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Data;
-      if (parsed.version === 4) return parsed;
+      if (parsed.version === 5) return parsed;
     }
   } catch {
     /* 저장된 값이 깨졌으면 시드로 되돌린다 */
