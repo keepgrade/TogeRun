@@ -3,12 +3,13 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import BuddyCard from "./BuddyCard";
+import CommunityRows from "./CommunityRows";
 import { btnPrimary, Empty, inputCls } from "./ui";
 import { buddyClosed, raceOver } from "@/lib/derive";
 import { today } from "@/lib/date";
 import { uniqueDistances } from "@/lib/format";
 import { useApp, useGuard } from "@/lib/store";
-import { REGIONS, STYLES, type Race } from "@/lib/types";
+import { REGIONS, STYLES, TAGS, type Race } from "@/lib/types";
 
 export function BuddyTab({ race }: { race: Race }) {
   const { data, myBlocked } = useApp();
@@ -88,6 +89,59 @@ export function BuddyTab({ race }: { race: Race }) {
           </Empty>
         </div>
       )}
+    </div>
+  );
+}
+
+export function CommunityTab({ race }: { race: Race }) {
+  const { data, myBlocked } = useApp();
+  const guard = useGuard();
+  const router = useRouter();
+  const [tag, setTag] = useState("");
+
+  const posts = useMemo(
+    () =>
+      data.cposts
+        .filter((p) => p.raceId === race.id && !myBlocked.includes(p.authorId))
+        .filter((p) => !tag || p.tag === tag)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [data.cposts, race.id, myBlocked, tag],
+  );
+
+  return (
+    <div>
+      <div className="rounded-xl bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
+        <p>같이 갈 사람을 구하는 글은 <b>같이 뛸 사람</b> 탭의 모집글로 써 주세요. 이곳은 질문, 정보, 이동·주차 이야기를 나누는 공간이에요.</p>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <h3 className="font-semibold">{race.name} 커뮤니티</h3>
+        <button onClick={() => guard(() => router.push(`/races/${race.id}/community/new`))} className={btnPrimary}>
+          글쓰기
+        </button>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {["", ...TAGS].map((t) => (
+          <button
+            key={t || "all"}
+            onClick={() => setTag(t)}
+            className={`rounded-full border px-3 py-1 text-sm ${tag === t ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
+          >
+            {t || "전체"}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3">
+        {posts.length ? (
+          <CommunityRows posts={posts} />
+        ) : (
+          <Empty action={<button onClick={() => guard(() => router.push(`/races/${race.id}/community/new`))} className={btnPrimary}>첫 글 남기기</button>}>
+            아직 글이 없어요.
+          </Empty>
+        )}
+      </div>
     </div>
   );
 }

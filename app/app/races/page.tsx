@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import RaceCard from "@/components/RaceCard";
 import { btnGhost, Empty, inputCls } from "@/components/ui";
@@ -12,13 +12,29 @@ import { DISTANCES, REGIONS } from "@/lib/types";
 const PAGE = 12;
 const STATUS_CHIPS = ["전체", "접수 예정", "접수중", "접수 마감"] as const;
 
+/** 홈에서 넘어온 검색어·상태를 읽는다(세션 저장소). 소비는 마운트 후 효과에서 한다. */
+const readHandoff = (key: string) => {
+  try {
+    return sessionStorage.getItem(key) ?? "";
+  } catch {
+    return "";
+  }
+};
+
 export default function RacesPage() {
   const { data } = useApp();
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(() => readHandoff("togerun-q"));
   const [region, setRegion] = useState("");
   const [distance, setDistance] = useState("");
   const [month, setMonth] = useState("");
-  const [status, setStatus] = useState<(typeof STATUS_CHIPS)[number]>("전체");
+  const [status, setStatus] = useState<(typeof STATUS_CHIPS)[number]>(() => {
+    const s = readHandoff("togerun-status");
+    return (STATUS_CHIPS as readonly string[]).includes(s) ? (s as (typeof STATUS_CHIPS)[number]) : "전체";
+  });
+  useEffect(() => {
+    sessionStorage.removeItem("togerun-q");
+    sessionStorage.removeItem("togerun-status");
+  }, []);
   const [past, setPast] = useState(false);
   const [sort, setSort] = useState<"date" | "close">("date");
   const [limit, setLimit] = useState(PAGE);

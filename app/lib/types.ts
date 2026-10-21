@@ -166,7 +166,7 @@ export interface AlertPref {
 }
 
 export interface Data {
-  version: 2;
+  version: 3;
   users: User[];
   accounts: Record<string, string>;
   meId: string | null;

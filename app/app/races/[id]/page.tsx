@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
 import FavoriteBar from "@/components/FavoriteBar";
 import RaceInfo from "@/components/RaceInfo";
-import { BuddyTab, ComingTab } from "@/components/RaceTabs";
+import { BuddyTab, ComingTab, CommunityTab } from "@/components/RaceTabs";
 import { Empty, StatusBadge, btnGhost, card } from "@/components/ui";
 import { raceStats, raceStatus } from "@/lib/derive";
 import { dday, fmtDate, today } from "@/lib/date";
@@ -113,7 +113,7 @@ export default function RaceDetailPage() {
         {tab === "info" && <RaceInfo race={race} />}
         {tab === "buddy" && <BuddyTab race={race} />}
         {tab === "review" && <ComingTab name="리뷰" />}
-        {tab === "community" && <ComingTab name="커뮤니티" />}
+        {tab === "community" && <CommunityTab race={race} />}
       </div>
     </div>
   );

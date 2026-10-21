@@ -37,7 +37,17 @@ export const fmtShort = (s: string) => {
   return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`;
 };
 
-export const monthKey = (s: string) => s.slice(0, 7);
+export const timeAgo = (isoString: string) => {
+  const s = (Date.now() - new Date(isoString).getTime()) / 1000;
+  if (s < 60) return "방금 전";
+  if (s < 3600) return `${Math.floor(s / 60)}분 전`;
+  if (s < 86400) return `${Math.floor(s / 3600)}시간 전`;
+  if (s < 86400 * 7) return `${Math.floor(s / 86400)}일 전`;
+  const d = new Date(isoString);
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
+};
+
+export const monthKey =(s: string) => s.slice(0, 7);
 
 export const fmtDateTime = (isoString: string) => {
   const d = new Date(isoString);

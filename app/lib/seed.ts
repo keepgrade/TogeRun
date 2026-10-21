@@ -18,6 +18,12 @@ const GEO: Record<string, [number, number]> = {
   r12: [35.1587, 129.1604],
   r13: [36.3600, 127.3700],
   r14: [35.8400, 129.2900],
+  r15: [35.1300, 126.9880],
+  r16: [35.5380, 129.3110],
+  r17: [36.4970, 127.2670],
+  r18: [37.7940, 128.9070],
+  r19: [36.6420, 127.4890],
+  r20: [35.4030, 127.3760],
 };
 
 /** 기본값 위에 덮어쓰는 대회별 상세 정보(상세 일정, 시각, 부문 등) */
@@ -179,6 +185,42 @@ export function buildSeed(): Data {
       courses: [{ distance: "10K", fee: 40000 }, { distance: "하프", fee: 50000 }, { distance: "풀", fee: 65000 }],
       scale: 9000, organizer: "샘플 경북육상", extraRegOpen: d(31), baseInterest: 190,
     }),
+    race({
+      id: "r15", name: "무등산 트레일 데이", type: "트레일", date: d(5), regOpen: d(-30), regClose: d(1),
+      region: "광주", venue: "무등산 국립공원 입구", address: "광주 동구 무등로 일대",
+      courses: [{ distance: "10K", fee: 50000 }, { distance: "하프", fee: 65000 }],
+      scale: 1500, organizer: "샘플 광주산악연맹", baseInterest: 85,
+    }),
+    race({
+      id: "r16", name: "태화강 러닝 페스티벌", type: "마라톤", date: d(8), regOpen: d(-20), regClose: d(4),
+      region: "울산", venue: "태화강 국가정원", address: "울산 중구 태화동 일대",
+      courses: [{ distance: "5K", fee: 25000 }, { distance: "10K", fee: 35000 }, { distance: "하프", fee: 45000 }],
+      scale: 4000, organizer: "샘플 울산시", baseInterest: 100,
+    }),
+    race({
+      id: "r17", name: "세종 호수공원 런", type: "마라톤", date: d(9), regOpen: d(-40), regClose: d(-2),
+      region: "세종", venue: "세종 호수공원", address: "세종 어진동 일대",
+      courses: [{ distance: "5K", fee: 20000 }, { distance: "10K", fee: 30000 }],
+      scale: 2500, organizer: "샘플 세종육상연맹", baseInterest: 60,
+    }),
+    race({
+      id: "r18", name: "경포 해변 마라톤", type: "마라톤", date: d(40), regOpen: d(10), regClose: d(30),
+      region: "강원", venue: "강릉 경포해변", address: "강원 강릉시 경포로 일대",
+      courses: [{ distance: "10K", fee: 40000 }, { distance: "하프", fee: 50000 }],
+      scale: 3500, organizer: "샘플 강릉시", baseInterest: 75,
+    }),
+    race({
+      id: "r19", name: "직지 하프 마라톤", type: "마라톤", date: d(55), regOpen: d(8), regClose: d(35),
+      region: "충북", venue: "청주종합경기장", address: "충북 청주시 서원구 일대",
+      courses: [{ distance: "10K", fee: 35000 }, { distance: "하프", fee: 45000 }],
+      scale: 5000, organizer: "샘플 충북체육회", baseInterest: 55,
+    }),
+    race({
+      id: "r20", name: "광한루 러닝 데이", type: "마라톤", date: d(65), regOpen: d(20), regClose: d(45),
+      region: "전북", venue: "남원 광한루원", address: "전북 남원시 요천로 일대",
+      courses: [{ distance: "5K", fee: 22000 }, { distance: "10K", fee: 32000 }],
+      scale: 3000, organizer: "샘플 남원시", baseInterest: 45,
+    }),
   ].map((r) => ({ ...r, ...EXTRA[r.id] }));
 
   const users = [
@@ -236,15 +278,19 @@ export function buildSeed(): Data {
     { id: "c01", raceId: "r01", authorId: "u3", tag: "이동·주차", title: "여의도 주차 어떻게 하시나요?", body: "차를 가져갈지 대중교통을 탈지 고민 중입니다. 작년에 다녀오신 분 계신가요?", createdAt: stamp(-2) },
     { id: "c02", raceId: "r01", authorId: "u5", tag: "정보·팁", title: "물품 보관 팁", body: "보관소가 일찍 붐비니 가능하면 최소한만 챙기고 일찍 도착하는 걸 추천해요.", createdAt: stamp(-1) },
     { id: "c03", raceId: "r11", authorId: "u2", tag: "잡담", title: "다들 기록 어떠셨어요?", body: "10K 기록이 생각보다 안 나와서 아쉬웠어요. 다음 대회 준비 같이 해요.", createdAt: stamp(-15) },
+    { id: "c04", raceId: "r03", authorId: "u4", tag: "질문", title: "트레일 필수 장비가 뭔가요?", body: "공지에 필수 장비 목록이 예정이라고 되어 있는데, 지난 대회 때는 어떤 걸 검사했는지 아시는 분 계세요?", createdAt: stamp(-0.5) },
+    { id: "c05", raceId: "r07", authorId: "u6", tag: "이동·주차", title: "경기장 근처 주차 정보", body: "경기장 주차장은 새벽에 일찍 찹니다. 인근 지하철역에서 걸어가는 코스를 추천해요.", createdAt: stamp(-1.5) },
+    { id: "c06", raceId: "r14", authorId: "u1", tag: "정보·팁", title: "보문단지 숙소 예약 팁", body: "대회 전날은 숙소가 빨리 마감돼서 접수 직후에 예약하는 걸 추천합니다.", createdAt: stamp(-0.2) },
   ];
 
   const comments: Comment[] = [
     { id: "m01", postId: "c01", authorId: "u2", body: "공원 주차장은 일찍 차서 지하철 추천드려요.", createdAt: stamp(-1) },
     { id: "m02", postId: "c01", authorId: "u5", body: "저도 대중교통으로 갈 예정이에요.", createdAt: stamp(-1) },
+    { id: "m03", postId: "c05", authorId: "u2", body: "정보 감사해요. 지하철로 가야겠어요.", createdAt: stamp(-1) },
   ];
 
   return {
-    version: 2,
+    version: 3,
     users,
     accounts: {},
     meId: null,
