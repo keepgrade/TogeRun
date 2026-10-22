@@ -64,7 +64,7 @@ export function MapPreview() {
   );
 
   return (
-    <section className="mt-16 grid items-center gap-8 md:grid-cols-[1.1fr_1fr]">
+    <section className="mb-10 mt-16 grid items-center gap-8 md:grid-cols-[1.1fr_1fr]">
       <div>
         <SectionHead
           eyebrow="TogeRun Map"
@@ -80,7 +80,7 @@ export function MapPreview() {
           </Link>
         </div>
       </div>
-      <div className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm">
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white">
         <span className="absolute left-3 top-3 z-[500] rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-orange-700 shadow">
           가까운 대회가 한눈에
         </span>

@@ -36,8 +36,9 @@ export default function RacesPage() {
   useEffect(() => {
     sessionStorage.removeItem("togerun-q");
     sessionStorage.removeItem("togerun-status");
+    sessionStorage.removeItem("togerun-past");
   }, []);
-  const [past, setPast] = useState(false);
+  const [past, setPast] = useState(() => readHandoff("togerun-past") === "1");
   const [sort, setSort] = useState<"date" | "close">("date");
   const [kind, setKind] = useKind();
 

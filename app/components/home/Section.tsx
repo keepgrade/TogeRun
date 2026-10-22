@@ -42,3 +42,16 @@ export function CountRow({ label, count, dark = false }: { label: string; count:
     </div>
   );
 }
+
+const BAND_TONE = {
+  sky: "bg-sky-50",
+  stone: "bg-stone-100",
+  orange: "bg-orange-50",
+  green: "bg-emerald-50",
+  indigo: "bg-indigo-50",
+} as const;
+
+/** 홈 구획을 색 배경으로 구분한다. 카드는 흰색이라 배경 위에서 또렷하다 */
+export function Band({ tone, children }: { tone: keyof typeof BAND_TONE; children: ReactNode }) {
+  return <section className={`mt-6 rounded-2xl px-5 py-8 sm:px-8 sm:py-10 ${BAND_TONE[tone]}`}>{children}</section>;
+}

@@ -18,7 +18,7 @@ const KIND_CHIPS: { label: string; kind: Kind }[] = [
 ];
 
 /** 목록 화면으로 검색어·상태를 넘긴다. URL 파라미터 대신 세션 저장소를 쓴다. */
-export const HANDOFF = { q: "togerun-q", status: "togerun-status" } as const;
+export const HANDOFF = { q: "togerun-q", status: "togerun-status", past: "togerun-past" } as const;
 
 function Tile({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
   return (
@@ -62,7 +62,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-50 via-white to-amber-50 px-5 pb-36 pt-10 sm:px-10 sm:pb-40 sm:pt-14">
+    <section className="relative overflow-hidden rounded-2xl bg-orange-50 px-5 pb-36 pt-10 sm:px-10 sm:pb-40 sm:pt-14">
       <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
         <div>
           <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-semibold text-orange-700">
@@ -93,7 +93,7 @@ export default function Hero() {
           </form>
         </div>
 
-        <div className="rounded-3xl border border-zinc-200 bg-white p-4 shadow-lg shadow-orange-100/60">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between px-1 text-xs">
             <span className="font-bold tracking-wider text-orange-700">TOGERUN LIVE</span>
             <span className="text-zinc-500">{fmtDate(t)} 기준</span>

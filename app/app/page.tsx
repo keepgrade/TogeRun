@@ -3,7 +3,7 @@
 import Hero from "@/components/home/Hero";
 import { Finder, MapPreview } from "@/components/home/FinderAndMap";
 import {
-  AlertBand, BuddySection, CommunitySection, OpenSection, OverseasSection, ThisMonthSection, TrailSection, UpcomingSection,
+  AlertBand, BuddySection, CommunitySection, OpenSection, OverseasSection, ReviewedSection, ThisMonthSection, TrailSection, UpcomingSection,
 } from "@/components/home/Lists";
 
 /**
@@ -24,6 +24,7 @@ export default function Home() {
       <OpenSection />
       <TrailSection />
       <OverseasSection />
+      <ReviewedSection />
       <AlertBand />
     </div>
   );
