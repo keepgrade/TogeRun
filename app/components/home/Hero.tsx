@@ -8,6 +8,7 @@ import { buddyClosed, raceStatus } from "@/lib/derive";
 import { fmtDate, monthKey, today } from "@/lib/date";
 import { matchKind, writeKind, type Kind } from "@/lib/kind";
 import { useApp } from "@/lib/store";
+import RunnerTrack from "./RunnerTrack";
 
 const KIND_CHIPS: { label: string; kind: Kind }[] = [
   { label: "국내 마라톤", kind: { type: "마라톤", scope: "국내" } },
@@ -61,7 +62,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-50 via-white to-amber-50 px-5 py-10 sm:px-10 sm:py-14">
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-50 via-white to-amber-50 px-5 pb-36 pt-10 sm:px-10 sm:pb-40 sm:pt-14">
       <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
         <div>
           <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-semibold text-orange-700">
@@ -142,6 +143,7 @@ export default function Hero() {
           </Link>
         </div>
       </div>
+      <RunnerTrack />
     </section>
   );
 }

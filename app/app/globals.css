@@ -25,3 +25,19 @@ a {
 button:disabled {
   cursor: not-allowed;
 }
+
+/* 홈 히어로의 달리는 러너 */
+@keyframes tg-run {
+  from { transform: translateX(-48px); }
+  to { transform: translateX(calc(100cqw + 24px)); }
+}
+@keyframes tg-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.tg-run { animation: tg-run linear infinite; will-change: transform; }
+.tg-bob { animation: tg-bob 0.45s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .tg-run { animation: none; transform: translateX(var(--stop, 20cqw)); }
+  .tg-bob { animation: none; }
+}
