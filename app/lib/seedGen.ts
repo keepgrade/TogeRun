@@ -63,7 +63,8 @@ function pickPlan(rng: Rng, i: number): Plan {
   return "cancel";
 }
 
-export function generateRaces(rng: Rng, count: number, startNumber: number): Race[] {
+/** onlyPast: 이미 끝난 대회만 만든다(리뷰 사례용) */
+export function generateRaces(rng: Rng, count: number, startNumber: number, onlyPast = false): Race[] {
   const t = today();
   const d = (n: number) => addDays(t, n);
   const used = new Set<string>();
@@ -84,7 +85,7 @@ export function generateRaces(rng: Rng, count: number, startNumber: number): Rac
     }
     used.add(name);
 
-    const plan = pickPlan(rng, i);
+    const plan = onlyPast ? "past" : pickPlan(rng, i);
     let regOpenO: number, regCloseO: number, dateO: number;
     switch (plan) {
       case "month":
@@ -103,7 +104,7 @@ export function generateRaces(rng: Rng, count: number, startNumber: number): Rac
         dateO = int(rng, 2, 50);
         break;
       case "past":
-        dateO = -int(rng, 3, 70);
+        dateO = -int(rng, 3, onlyPast ? 220 : 70);
         regCloseO = dateO - int(rng, 10, 30);
         regOpenO = regCloseO - int(rng, 15, 40);
         break;

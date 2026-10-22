@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { BadgeCheck, Paperclip, Pencil, Plus, Trash2 } from "lucide-react";
 import { Badge, btnGhost, btnPrimary, card, Empty, Field, inputCls, Modal } from "./ui";
 import { recordText } from "@/lib/format";
 import { uid, useApp } from "@/lib/store";
-import { DISTANCES, type Distance, type RunRecord } from "@/lib/types";
+import { DISTANCES, type Distance, type RecordProof, type RunRecord } from "@/lib/types";
 
 const THIS_YEAR = new Date().getFullYear();
 const CUSTOM = "__custom__";
@@ -22,6 +22,8 @@ function RecordForm({ record, onClose }: { record?: RunRecord; onClose: () => vo
   const [s, setS] = useState(record?.recordSec ? String(record.recordSec % 60) : "");
   const [memo, setMemo] = useState(record?.memo ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [file, setFile] = useState("");
+  const [dropProof, setDropProof] = useState(false);
 
   const choose = (v: string) => {
     setPick(v);
@@ -48,10 +50,19 @@ function RecordForm({ record, onClose }: { record?: RunRecord; onClose: () => vo
         if (recordSec <= 0) err.record = "기록이 0이에요. 비워 두거나 시간을 입력해 주세요";
       }
     }
+    if (file && recordSec === undefined) err.proof = "기록(시·분·초)을 입력해야 인증 자료를 낼 수 있어요";
     if (memo.length > 60) err.memo = "메모는 60자 이내로 적어 주세요";
     setErrors(err);
     if (Object.keys(err).length) return;
 
+    // 인증된 기록의 핵심 내용을 바꾸면 인증은 풀린다
+    const changed =
+      !!record && (name.trim() !== record.raceName || y !== record.year || distance !== record.distance || result !== record.result || recordSec !== record.recordSec);
+    const proof: RecordProof | undefined = file
+      ? { status: "검토 중", fileName: file, submittedAt: new Date().toISOString() }
+      : record?.proof && !changed && !dropProof
+        ? record.proof
+        : undefined;
     a.saveRecord({
       id: record?.id ?? uid(),
       raceName: name.trim(),
@@ -61,6 +72,7 @@ function RecordForm({ record, onClose }: { record?: RunRecord; onClose: () => vo
       result,
       recordSec,
       memo: memo.trim() || undefined,
+      proof,
     });
     onClose();
   };
@@ -109,6 +121,31 @@ function RecordForm({ record, onClose }: { record?: RunRecord; onClose: () => vo
             </div>
           </Field>
         )}
+        {result === "완주" && (
+          <Field
+            label="기록 인증 (선택)"
+            error={errors.proof}
+            hint="기록증이나 결과 화면 사진을 올리면 확인 후 '인증됨'이 붙어요. 이름·배번·연락처는 가리고 올려 주세요. 사진은 확인 뒤 보관하지 않아요."
+          >
+            {record?.proof && !dropProof && !file ? (
+              <p className="flex items-center gap-2 text-sm text-zinc-600">
+                <Paperclip size={14} /> {record.proof.fileName} · {record.proof.status}
+                <button type="button" onClick={() => setDropProof(true)} className="text-xs text-zinc-500 underline">인증 자료 삭제</button>
+              </p>
+            ) : (
+              <input
+                type="file"
+                accept="image/*"
+                aria-label="기록 인증 사진"
+                onChange={(e) => setFile(e.target.files?.[0]?.name ?? "")}
+                className="block w-full text-sm text-zinc-600 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-sm"
+              />
+            )}
+            {record?.proof && !dropProof && (
+              <p className="mt-1 text-xs text-amber-600">기록 내용(대회·연도·종목·결과·시간)을 바꾸면 인증이 풀려요.</p>
+            )}
+          </Field>
+        )}
         <Field label="메모" error={errors.memo} hint={`${memo.length}/60`}>
           <input value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
         </Field>
@@ -128,6 +165,7 @@ export default function RunRecords() {
 
   const sorted = [...myHistory].sort((x, y) => y.year - x.year);
   const finished = myHistory.filter((r) => r.result === "완주").length;
+  const verified = myHistory.filter((r) => r.proof?.status === "인증됨").length;
 
   const remove = (r: RunRecord) => {
     if (window.confirm(`'${r.raceName}' 기록을 삭제할까요?`)) a.deleteRecord(r.id);
@@ -137,13 +175,13 @@ export default function RunRecords() {
     <div>
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-bold">
-          마라톤 경험 기록 <span className="text-sm font-normal text-zinc-500">· 기록한 대회 {myHistory.length} · 완주 {finished}회</span>
+          마라톤 경험 기록 <span className="text-sm font-normal text-zinc-500">· 기록한 대회 {myHistory.length} · 완주 {finished}회 · 인증 {verified}건</span>
         </h2>
         <button onClick={() => setEditing("new")} className={btnPrimary}>
           <Plus size={14} /> 기록 추가
         </button>
       </div>
-      <p className="mb-3 text-xs text-zinc-500">직접 적는 기록이며 TogeRun이 확인하지 않아요.</p>
+      <p className="mb-3 text-xs text-zinc-500">기본은 직접 적는 기록이에요. 기록증이나 결과 화면을 첨부하면 확인 후 ‘인증됨’이 표시돼 버디가 더 믿고 볼 수 있어요.</p>
 
       {sorted.length ? (
         <ul className="space-y-2">
@@ -156,7 +194,23 @@ export default function RunRecords() {
                   <Badge tone="orange">{r.distance}</Badge>
                   <Badge tone={r.result === "완주" ? "green" : "gray"}>{r.result}</Badge>
                   {r.recordSec ? <span className="font-medium text-zinc-700">{recordText(r.recordSec)}</span> : null}
+                  {r.proof && (
+                    <Badge tone={r.proof.status === "인증됨" ? "green" : r.proof.status === "반려" ? "red" : "blue"}>
+                      {r.proof.status === "인증됨" && <BadgeCheck size={12} className="mr-0.5" />}
+                      {r.proof.status === "인증됨" ? "인증됨" : `인증 ${r.proof.status}`}
+                    </Badge>
+                  )}
                 </p>
+                {r.proof?.status === "검토 중" && (
+                  <p className="mt-1 text-xs text-zinc-500">
+                    운영자가 확인하고 있어요. <span className="text-zinc-400">(PoC 시뮬레이션)</span>{" "}
+                    <button onClick={() => a.saveRecord({ ...r, proof: { ...r.proof!, status: "인증됨" } })} className="underline">승인</button>{" · "}
+                    <button onClick={() => a.saveRecord({ ...r, proof: { ...r.proof!, status: "반려" } })} className="underline">반려</button>
+                  </p>
+                )}
+                {r.proof?.status === "반려" && (
+                  <p className="mt-1 text-xs text-red-600">자료가 기록과 맞지 않아 인증되지 않았어요. 수정에서 다시 올릴 수 있어요.</p>
+                )}
                 {r.memo && <p className="mt-1 text-sm text-zinc-600">{r.memo}</p>}
               </div>
               <div className="flex shrink-0 gap-1">

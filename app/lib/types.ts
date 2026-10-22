@@ -111,6 +111,15 @@ export const defaultProfile = (): Profile => ({
   pub: { gender: false, age: false, pace: true, history: true },
 });
 
+export type ProofStatus = "검토 중" | "인증됨" | "반려";
+
+/** 기록 인증 자료. 사진 파일은 저장하지 않고 이름과 상태만 둔다(PoC) */
+export interface RecordProof {
+  status: ProofStatus;
+  fileName: string;
+  submittedAt: string;
+}
+
 export interface RunRecord {
   id: string;
   raceName: string;
@@ -120,6 +129,7 @@ export interface RunRecord {
   result: "완주" | "기권";
   recordSec?: number;
   memo?: string;
+  proof?: RecordProof;
 }
 
 export interface BuddyPost {
@@ -199,7 +209,7 @@ export interface AlertPref {
 }
 
 export interface Data {
-  version: 8;
+  version: 10;
   users: User[];
   accounts: Record<string, string>;
   meId: string | null;

@@ -41,6 +41,7 @@ export default function PublicProfile({ userId }: { userId: string }) {
               <li key={h.id}>
                 {h.year} {h.raceName} · {h.distance} · {h.result}
                 {h.recordSec ? ` · ${recordText(h.recordSec)}` : ""}
+                {h.proof?.status === "인증됨" ? <span className="ml-1 text-xs font-medium text-emerald-600">✓ 인증</span> : null}
               </li>
             ))}
           </ul>

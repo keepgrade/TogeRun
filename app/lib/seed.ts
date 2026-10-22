@@ -252,12 +252,12 @@ export function buildSeed(): Data {
 
   const histories = {
     u2: [
-      { id: "h1", raceName: "서울 봄 러닝 데이", raceId: "r11", year: 2026, distance: "10K" as const, result: "완주" as const, recordSec: 3300 },
+      { id: "h1", raceName: "서울 봄 러닝 데이", raceId: "r11", year: 2026, distance: "10K" as const, result: "완주" as const, recordSec: 3300, proof: { status: "인증됨" as const, fileName: "기록증.jpg", submittedAt: stamp(-10) } },
       { id: "h2", raceName: "예전 가을 하프", year: 2025, distance: "하프" as const, result: "완주" as const, recordSec: 7500 },
     ],
     u4: [{ id: "h3", raceName: "예전 겨울 풀코스", year: 2025, distance: "풀" as const, result: "완주" as const, recordSec: 15300 }],
     u6: [
-      { id: "h4", raceName: "부산 여름 해변런", raceId: "r12", year: 2026, distance: "하프" as const, result: "완주" as const, recordSec: 7200 },
+      { id: "h4", raceName: "부산 여름 해변런", raceId: "r12", year: 2026, distance: "하프" as const, result: "완주" as const, recordSec: 7200, proof: { status: "인증됨" as const, fileName: "결과화면.png", submittedAt: stamp(-30) } },
       { id: "h5", raceName: "예전 봄 10K", year: 2025, distance: "10K" as const, result: "기권" as const },
     ],
   };
@@ -300,7 +300,7 @@ export function buildSeed(): Data {
 
   // 직접 쓴 20개 대회 위에 생성기로 만든 더미 데이터를 더한다 (고정 시드라 결과가 같다)
   const rng = makeRng(20261022);
-  const allRaces = [...races, ...generateRaces(rng, 44, 21), ...generateOverseasRaces()];
+  const allRaces = [...races, ...generateRaces(rng, 44, 21), ...generateRaces(rng, 18, 65, true), ...generateOverseasRaces()];
   const genUsers = generateUsers(rng, users.map((u) => u.nickname), 16);
   const allUserIds = [...users.map((u) => u.id), ...genUsers.users.map((u) => u.id)];
   const overseasRaces = allRaces.filter((r) => r.scope === "해외");
@@ -318,7 +318,7 @@ export function buildSeed(): Data {
   const genReviews = generateReviews(rng, allRaces, allUserIds, reviews, 1);
 
   return {
-    version: 8,
+    version: 10,
     users: [...users, ...genUsers.users],
     accounts: {},
     meId: null,
