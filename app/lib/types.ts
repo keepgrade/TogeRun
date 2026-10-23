@@ -195,7 +195,7 @@ export interface Report {
 
 export interface RaceErrorReport {
   id: string;
-  kind: "정보 오류" | "등록 문의";
+  kind: "정보 오류" | "등록 문의" | "문의사항" | "불편 신고";
   raceId?: string;
   detail: string;
   evidenceUrl?: string;
