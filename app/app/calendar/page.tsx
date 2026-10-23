@@ -47,7 +47,7 @@ export default function CalendarPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold">캘린더</h1>
+      <h1 className="sr-only">캘린더</h1>
       <div className="mt-3">
         <KindTabs kind={kind} onChange={setKind} />
       </div>
@@ -95,24 +95,23 @@ export default function CalendarPage() {
                 >
                   {day}
                 </span>
-                {inMonth &&
-                  list.slice(0, 2).map((r) => (
-                    <span
-                      key={r.id}
-                      className={`mt-0.5 block truncate rounded px-1 text-[10px] leading-4 ${
-                        r.cancelled ? "bg-red-50 text-red-600 line-through" : myFavorites.includes(r.id) ? "bg-orange-100 text-orange-800" : "bg-sky-50 text-sky-800"
-                      }`}
-                    >
-                      {r.name}
-                    </span>
-                  ))}
-                {inMonth && list.length > 2 && <span className="block text-[10px] text-zinc-500">+{list.length - 2}개</span>}
+                {inMonth && list.length > 0 && (
+                  <span className="mt-1 flex items-center gap-1">
+                    {list.slice(0, 3).map((r) => (
+                      <span
+                        key={r.id}
+                        className={`h-2 w-2 shrink-0 rounded-full ${r.cancelled ? "bg-red-400" : myFavorites.includes(r.id) ? "bg-orange-500" : "bg-sky-500"}`}
+                      />
+                    ))}
+                    {list.length > 3 && <span className="text-[10px] font-bold text-zinc-600">+{list.length - 3}</span>}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </div>
-      <p className="mt-2 text-xs text-zinc-500">주황색은 내가 저장한 대회, 취소된 대회는 취소선으로 표시돼요.</p>
+      <p className="mt-2 text-xs text-zinc-500">점이 대회 수예요. 주황은 내가 저장한 대회, 빨강은 취소된 대회예요. 날짜를 누르면 아래에 목록이 나와요.</p>
 
       <h2 className="mb-2 mt-5 text-lg font-bold">
         {selected ? `${selected.replace(/-/g, ".")} 대회 ${dayRaces.length}` : "날짜를 선택하세요"}

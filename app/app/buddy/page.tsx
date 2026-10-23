@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import BuddyCard from "@/components/BuddyCard";
+import FilterPanel from "@/components/FilterPanel";
 import Pagination, { usePaged } from "@/components/Pagination";
-import { btnGhost, btnPrimary, Empty, inputCls } from "@/components/ui";
+import { btnGhost, Empty, inputCls } from "@/components/ui";
 import { buddyClosed } from "@/lib/derive";
 import { today } from "@/lib/date";
 import { useApp } from "@/lib/store";
@@ -55,13 +55,8 @@ export default function BuddyListPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold">모집 중인 버디</h1>
-          <p className="mt-1 text-sm text-zinc-500">대회마다 올라온 모집글을 한곳에서 보고, 나에게 맞는 버디를 골라 보세요.</p>
-        </div>
-        <Link href="/races" className={btnPrimary}>대회에서 모집글 쓰기</Link>
-      </div>
+      <h1 className="text-xl font-bold">모집 중인 버디</h1>
+      <p className="mt-1 text-sm text-zinc-600">대회마다 올라온 모집글을 한곳에서 보고, 나에게 맞는 버디를 골라 보세요. 모집글은 아래 가운데 버튼으로 올려요.</p>
 
       <div className="relative mt-4">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -74,8 +69,12 @@ export default function BuddyListPage() {
         />
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        <select value={scope} onChange={(e) => change(setScope)(e.target.value)} className={inputCls} aria-label="범위">
+      <FilterPanel
+        active={[scope, type, distance, style, region].filter(Boolean).length + (onlyOpen ? 0 : 1)}
+        onReset={reset}
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <select value={scope} onChange={(e) => change(setScope)(e.target.value)} className={inputCls} aria-label="범위">
           <option value="">국내·해외 전체</option>
           <option value="국내">국내</option>
           <option value="해외">해외</option>
@@ -101,15 +100,12 @@ export default function BuddyListPage() {
           <option value="latest">최신순</option>
           <option value="deadline">모집 마감 임박순</option>
         </select>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between text-sm">
+        </div>
         <label className="inline-flex items-center gap-2 text-zinc-600">
           <input type="checkbox" checked={onlyOpen} onChange={(e) => change(setOnlyOpen)(e.target.checked)} />
           모집중인 글만 보기
         </label>
-        <button onClick={reset} className="text-zinc-500 underline">필터 초기화</button>
-      </div>
+      </FilterPanel>
 
       <p className="mt-4 text-sm text-zinc-500">
         조건에 맞는 모집글 {list.length}개 <span className="text-zinc-400">· 지금 모집 중 {openCount}개</span>

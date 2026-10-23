@@ -95,7 +95,7 @@ export default function BuddyForm({ race, post }: { race: Race; post?: BuddyPost
         </select>
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <Field label="모집 마감일" required error={errors.until} hint="기본값은 접수 마감일, 대회일 이후는 고를 수 없어요">
           <input type="date" value={until} max={race.date} onChange={(e) => setUntil(e.target.value)} className={inputCls} />
         </Field>

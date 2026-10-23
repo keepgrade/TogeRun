@@ -77,7 +77,7 @@ export default function MapPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold">지도</h1>
+      <h1 className="sr-only">지도</h1>
       <p className="mt-1 text-sm text-zinc-500">
         {kind.scope === "국내" ? "가까운 지역의 대회를 지도에서 찾아보세요." : "해외 주요 대회가 열리는 도시를 지도에서 확인해 보세요."}
       </p>
@@ -85,12 +85,12 @@ export default function MapPage() {
         <KindTabs kind={kind} onChange={changeKind} />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="tg-chips mt-3">
         {["", ...regions].map((r) => (
           <button
             key={r || "all"}
             onClick={() => { setRegion(r); setSelectedId(null); }}
-            className={`rounded-full border px-3 py-1 text-sm ${region === r ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
+            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-sm ${region === r ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
           >
             {r || "전체"}
           </button>

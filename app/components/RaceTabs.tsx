@@ -52,7 +52,7 @@ export function BuddyTab({ race }: { race: Race }) {
       </div>
       {over && <p className="mt-1 text-xs text-zinc-500">끝났거나 취소된 대회는 모집글을 쓸 수 없어요.</p>}
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2">
         <select value={distance} onChange={(e) => setDistance(e.target.value)} className={inputCls} aria-label="종목">
           <option value="">종목 전체</option>
           {uniqueDistances(race.courses).map((d) => <option key={d}>{d}</option>)}

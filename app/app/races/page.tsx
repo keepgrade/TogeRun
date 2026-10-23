@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import FilterPanel from "@/components/FilterPanel";
 import KindTabs from "@/components/KindTabs";
 import Pagination, { usePaged } from "@/components/Pagination";
 import RaceCard from "@/components/RaceCard";
@@ -87,7 +88,7 @@ export default function RacesPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold">대회</h1>
+      <h1 className="sr-only">대회</h1>
 
       <div className="mt-3">
         <KindTabs kind={kind} onChange={changeKind} />
@@ -104,20 +105,21 @@ export default function RacesPage() {
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="tg-chips mt-3">
         {STATUS_CHIPS.map((s) => (
           <button
             key={s}
             onClick={() => { setStatus(s); pg.resetPage(); }}
-            className={`rounded-full border px-3 py-1 text-sm ${status === s ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
+            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-sm ${status === s ? "border-orange-600 bg-orange-600 text-white" : "border-zinc-300 bg-white text-zinc-700"}`}
           >
             {s}
           </button>
         ))}
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <select value={region} onChange={(e) => { setRegion(e.target.value); pg.resetPage(); }} className={inputCls} aria-label={kind.scope === "국내" ? "지역" : "국가"}>
+      <FilterPanel active={[region, distance, month].filter(Boolean).length + (past ? 1 : 0)} onReset={reset}>
+        <div className="grid grid-cols-2 gap-2">
+          <select value={region} onChange={(e) => { setRegion(e.target.value); pg.resetPage(); }} className={inputCls} aria-label={kind.scope === "국내" ? "지역" : "국가"}>
           <option value="">{kind.scope === "국내" ? "지역 전체" : "국가 전체"}</option>
           {regionOptions.map((r) => <option key={r}>{r}</option>)}
         </select>
@@ -133,15 +135,12 @@ export default function RacesPage() {
           <option value="date">개최일 빠른순</option>
           <option value="close">접수 마감 임박순</option>
         </select>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between text-sm">
-        <label className="inline-flex items-center gap-2 text-zinc-600">
+        </div>
+        <label className="inline-flex items-center gap-2 text-sm text-zinc-600">
           <input type="checkbox" checked={past} onChange={(e) => { setPast(e.target.checked); pg.resetPage(); }} />
           지난·취소 대회 포함
         </label>
-        <button onClick={reset} className="text-zinc-500 underline">필터 초기화</button>
-      </div>
+      </FilterPanel>
 
       <p className="mt-4 text-sm text-zinc-500">
         {kind.scope} {TYPE_LABEL[kind.type]} 중 조건에 맞는 대회 {list.length}개
@@ -153,7 +152,7 @@ export default function RacesPage() {
         </div>
       ) : (
         <>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
             {pg.slice.map((r) => <RaceCard key={r.id} race={r} />)}
           </div>
           <Pagination page={pg.page} pages={pg.pages} size={pg.size} total={list.length} onPage={pg.setPage} onSize={pg.setSize} />

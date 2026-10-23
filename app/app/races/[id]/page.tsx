@@ -3,19 +3,21 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ExternalLink, Star } from "lucide-react";
+import { ExternalLink, Star } from "lucide-react";
 import FavoriteBar from "@/components/FavoriteBar";
 import RaceInfo from "@/components/RaceInfo";
 import { ReviewTab } from "@/components/ReviewTab";
 import { BuddyTab, CommunityTab } from "@/components/RaceTabs";
 import { Empty, StatusBadge, btnGhost, card } from "@/components/ui";
 import { raceStats, raceStatus } from "@/lib/derive";
-import { dday, fmtDate, today } from "@/lib/date";
+import { dday, fmtDate, parse, today } from "@/lib/date";
 import { useApp } from "@/lib/store";
+
+const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 
 const TABS = [
   { key: "info", label: "정보" },
-  { key: "buddy", label: "같이 뛸 사람" },
+  { key: "buddy", label: "버디" },
   { key: "review", label: "리뷰" },
   { key: "community", label: "커뮤니티" },
 ] as const;
@@ -55,10 +57,6 @@ export default function RaceDetailPage() {
 
   return (
     <div>
-      <Link href="/races" className="mb-3 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-800">
-        <ArrowLeft size={14} /> 대회 목록
-      </Link>
-
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={status} />
         {race.type === "트레일" && <span className="text-xs text-zinc-500">트레일</span>}
@@ -72,8 +70,9 @@ export default function RaceDetailPage() {
         {dates.map((d) => (
           <div key={d.label} className="p-3 text-center">
             <p className="text-xs text-zinc-500">{d.label}</p>
-            <p className="mt-0.5 text-sm font-semibold">{fmtDate(d.value)}</p>
-            <p className="text-xs font-bold text-orange-700">{dday(d.value, t)}</p>
+            <p className="mt-1 whitespace-nowrap text-xl font-extrabold tabular-nums">{d.value.slice(5).replace("-", ".")}</p>
+            <p className="whitespace-nowrap text-xs text-zinc-500">{d.value.slice(0, 4)} · {DOW[parse(d.value).getDay()]}요일</p>
+            <p className="mt-0.5 text-xs font-bold text-orange-700">{dday(d.value, t)}</p>
           </div>
         ))}
       </div>
@@ -110,7 +109,7 @@ export default function RaceDetailPage() {
             role="tab"
             aria-selected={tab === x.key}
             onClick={() => setTab(x.key)}
-            className={`-mb-px flex-1 border-b-2 px-2 py-2.5 text-sm font-medium ${tab === x.key ? "border-orange-600 text-orange-700" : "border-transparent text-zinc-500"}`}
+            className={`-mb-px flex-1 whitespace-nowrap border-b-2 px-2 py-2.5 text-sm font-medium ${tab === x.key ? "border-orange-600 text-orange-700" : "border-transparent text-zinc-500"}`}
           >
             {x.label}
           </button>
