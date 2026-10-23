@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { inputCls } from "@/components/ui";
 
-export const PAGE_SIZES = [10, 20] as const;
+export const PAGE_SIZES = [15, 30] as const;
 
 /** 목록을 쪽(페이지)으로 나눈다. 필터가 바뀌면 resetPage()로 1쪽으로 돌아간다. */
 export function usePaged<T>(items: T[]) {

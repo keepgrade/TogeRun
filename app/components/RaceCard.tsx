@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Heart, MapPin, MessageSquare, Star, Users } from "lucide-react";
+import RacePoster from "./RacePoster";
 import { Badge, StatusBadge, card } from "./ui";
 import { raceStats, raceStatus } from "@/lib/derive";
 import { dday, fmtDate, today } from "@/lib/date";
@@ -31,18 +32,33 @@ export default function RaceCard({ race, extra }: { race: Race; extra?: string }
         <span className="shrink-0 text-sm font-bold text-zinc-900">{dday(race.date, t)}</span>
       </div>
       <h3 className="mt-2 text-base font-semibold leading-snug">{race.name}</h3>
-      <p className="mt-1 text-sm text-zinc-600">{fmtDate(race.date)}</p>
-      <p className="mt-0.5 flex items-center gap-1 text-sm text-zinc-500">
-        <MapPin size={14} /> {race.region} · {race.venue}
-        {extra && <span className="ml-1 font-semibold text-sky-700">· {extra}</span>}
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1">
-        {uniqueDistances(race.courses).map((d) => (
-          <Badge key={d}>{d}</Badge>
-        ))}
-        <span className="ml-1 text-xs text-zinc-500">
-          {feeRange(race.courses, race.currency)} · {scaleText(race.scale)}
-        </span>
+      <div className="mt-2 flex gap-3 sm:block">
+        <RacePoster race={race} className="aspect-square w-[42%] shrink-0 self-start sm:w-full" />
+        <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium text-zinc-700 sm:mt-2">🗓️ {fmtDate(race.date)}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-sm text-zinc-500">
+          <MapPin size={14} /> {race.region} · {race.venue}
+          {extra && <span className="ml-1 font-semibold text-sky-700">· {extra}</span>}
+        </p>
+        <dl className="mt-2 space-y-1.5 text-sm">
+          <div className="flex items-start gap-2">
+            <dt className="w-[3.75rem] shrink-0 text-zinc-500">📏 구간</dt>
+            <dd className="flex flex-wrap gap-1">
+              {uniqueDistances(race.courses).map((d) => (
+                <Badge key={d}>{d}</Badge>
+              ))}
+            </dd>
+          </div>
+          <div className="flex items-start gap-2">
+            <dt className="w-[3.75rem] shrink-0 text-zinc-500">💰 가격</dt>
+            <dd className="font-medium text-zinc-800">{feeRange(race.courses, race.currency)}</dd>
+          </div>
+          <div className="flex items-start gap-2">
+            <dt className="w-[3.75rem] shrink-0 text-zinc-500">👥 인원</dt>
+            <dd className="text-zinc-800">{scaleText(race.scale)}</dd>
+          </div>
+        </dl>
+        </div>
       </div>
       <div className="mt-3 flex items-center gap-3 border-t border-zinc-100 pt-2 text-xs text-zinc-500">
         <span className="inline-flex items-center gap-1">
