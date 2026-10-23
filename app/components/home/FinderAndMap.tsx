@@ -26,19 +26,19 @@ export function Finder() {
         title={<>원하는 대회를 가장<br className="hidden sm:block" /> 편한 방법으로 찾아보세요</>}
         sub="조건으로 좁히고, 버디를 구하고, 달력과 지도에서 일정을 확인하세요."
       />
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 lg:grid-cols-4">
         {CARDS.map(({ href, icon: Icon, title, desc }) => (
           <li key={title}>
             <Link
               href={href}
-              className="group flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-md"
+              className="group flex h-full flex-col rounded-xl border border-zinc-200 bg-white p-4 transition sm:p-5 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-md"
             >
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
                 <Icon size={22} />
               </span>
-              <h3 className="mt-4 text-lg font-bold">{title}</h3>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-zinc-600">{desc}</p>
-              <span className="mt-4 text-sm font-semibold text-orange-700 group-hover:underline">자세히 살펴보기 →</span>
+              <h3 className="mt-3 text-base font-bold sm:mt-4 sm:text-lg">{title}</h3>
+              <p className="mt-1.5 hidden flex-1 text-sm leading-relaxed text-zinc-600 sm:block">{desc}</p>
+              <span className="mt-2 text-sm font-semibold text-orange-700 group-hover:underline sm:mt-4">바로가기 →</span>
             </Link>
           </li>
         ))}
@@ -81,7 +81,7 @@ export function MapPreview() {
         </div>
       </div>
       <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-        <span className="absolute left-3 top-3 z-[500] rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-orange-700 shadow">
+        <span className="absolute bottom-3 left-3 z-[500] rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-orange-700 shadow">
           가까운 대회가 한눈에
         </span>
         <RaceMap

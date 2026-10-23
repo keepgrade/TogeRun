@@ -3,6 +3,7 @@
 import Link from "next/link";
 import BuddyCard from "@/components/BuddyCard";
 import RaceCard from "@/components/RaceCard";
+import MoreMenu from "@/components/MoreMenu";
 import { btnGhost, btnPrimary, card, Empty } from "@/components/ui";
 import { timeAgo } from "@/lib/date";
 import { paceText } from "@/lib/format";
@@ -14,9 +15,12 @@ export default function MePage() {
 
   if (!me) {
     return (
-      <Empty action={<button className={btnPrimary} onClick={() => guard(() => {})}>로그인</button>}>
-        로그인하면 내 모집글을 볼 수 있어요.
-      </Empty>
+      <div>
+        <Empty action={<button className={btnPrimary} onClick={() => guard(() => {})}>로그인</button>}>
+          로그인하면 내 모집글을 볼 수 있어요.
+        </Empty>
+        <MoreMenu />
+      </div>
     );
   }
 
@@ -48,7 +52,7 @@ export default function MePage() {
 
       <h2 className="mb-2 mt-6 text-lg font-bold">저장한 대회 {saved.length}</h2>
       {saved.length ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           {saved.map((r) => <RaceCard key={r.id} race={r} />)}
         </div>
       ) : (
@@ -79,7 +83,7 @@ export default function MePage() {
 
       <h2 className="mb-2 mt-6 text-lg font-bold">내 모집글 {mine.length}</h2>
       {mine.length ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           {mine.map((p) => <BuddyCard key={p.id} post={p} showRace />)}
         </div>
       ) : (
@@ -118,15 +122,7 @@ export default function MePage() {
         <Empty>접수한 신고가 없어요.</Empty>
       )}
 
-      <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-600">
-        <p className="font-semibold text-zinc-800">PoC 도구</p>
-        <button
-          onClick={() => window.confirm("샘플 데이터로 되돌리고 내가 만든 글을 모두 지울까요?") && a.resetData()}
-          className={`${btnGhost} mt-2`}
-        >
-          데이터 초기화
-        </button>
-      </div>
+      <MoreMenu />
     </div>
   );
 }

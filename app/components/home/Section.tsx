@@ -14,17 +14,17 @@ export function SectionHead({
   dark?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
       <div>
         <p className={`text-xs font-bold uppercase tracking-widest ${dark ? "text-amber-200" : "text-orange-600"}`}>{eyebrow}</p>
-        <h2 className={`mt-2 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl ${dark ? "text-white" : ""}`}>{title}</h2>
-        {sub && <p className={`mt-2 max-w-xl text-sm leading-relaxed ${dark ? "text-white/90" : "text-zinc-600"}`}>{sub}</p>}
+        <h2 className={`mt-1.5 text-xl font-extrabold leading-tight tracking-tight ${dark ? "text-white" : ""}`}>{title}</h2>
+        {sub && <p className={`mt-2 hidden max-w-xl text-sm leading-relaxed sm:block ${dark ? "text-white/90" : "text-zinc-600"}`}>{sub}</p>}
       </div>
       {cta && (
         <Link
           href={cta.href}
           onClick={cta.onClick}
-          className={`inline-flex shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold ${dark ? "border-white bg-white text-red-700 hover:bg-amber-50" : "border-zinc-300 bg-white hover:border-orange-400 hover:text-orange-700"}`}
+          className={`inline-flex shrink-0 items-center justify-center self-start rounded-full border px-3.5 py-1.5 text-xs font-semibold sm:self-auto sm:px-4 sm:py-2 sm:text-sm ${dark ? "border-white bg-white text-red-700 hover:bg-amber-50" : "border-zinc-300 bg-white hover:border-orange-400 hover:text-orange-700"}`}
         >
           {cta.label}
         </Link>
@@ -53,5 +53,5 @@ const BAND_TONE = {
 
 /** 홈 구획을 색 배경으로 구분한다. 카드는 흰색이라 배경 위에서 또렷하다 */
 export function Band({ tone, children }: { tone: keyof typeof BAND_TONE; children: ReactNode }) {
-  return <section className={`mt-6 rounded-2xl px-5 py-8 sm:px-8 sm:py-10 ${BAND_TONE[tone]}`}>{children}</section>;
+  return <section className={`mt-6 rounded-2xl px-4 py-8 ring-1 ring-black/5 sm:px-8 sm:py-10 ${BAND_TONE[tone]}`}>{children}</section>;
 }

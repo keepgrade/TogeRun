@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Scene {
   name: string;
@@ -89,26 +89,46 @@ const RUNNERS = [
   { face: "🏃🏾", delay: -17, dur: 29, stop: "80cqw" },
 ];
 
+/** 말풍선은 한 번에 한 명만 말하고, 러너가 양쪽 끝에 가까우면 말하지 않는다(풍선이 잘리지 않게) */
+let speaking = false;
+
 function Runner({ face, delay, dur, stop, seed }: { face: string; delay: number; dur: number; stop: string; seed: number }) {
   const [say, setSay] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let hide: ReturnType<typeof setTimeout>;
     let next: ReturnType<typeof setTimeout>;
+    let mine = false;
     const speak = () => {
+      const me = ref.current?.getBoundingClientRect();
+      const box = ref.current?.parentElement?.getBoundingClientRect();
+      const inside = !!me && !!box && me.left > box.left + 90 && me.right < box.right - 90;
+      if (speaking || !inside) {
+        next = setTimeout(speak, 900);
+        return;
+      }
+      speaking = true;
+      mine = true;
       setSay(LINES[Math.floor(Math.random() * LINES.length)]);
-      hide = setTimeout(() => setSay(""), 2600);
-      next = setTimeout(speak, 5000 + Math.random() * 6000);
+      hide = setTimeout(() => {
+        setSay("");
+        speaking = false;
+        mine = false;
+      }, 2600);
+      next = setTimeout(speak, 4000 + Math.random() * 5000);
     };
     next = setTimeout(speak, 800 + seed * 1400);
     return () => {
       clearTimeout(hide);
       clearTimeout(next);
+      if (mine) speaking = false;
     };
   }, [seed]);
 
   return (
     <div
+      ref={ref}
       className="tg-run absolute bottom-4 left-0"
       style={{ animationDuration: `${dur}s`, animationDelay: `${delay}s`, ["--stop" as string]: stop }}
     >

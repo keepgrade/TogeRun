@@ -10,7 +10,30 @@
   --color-foreground: var(--foreground);
 }
 
+/*
+ * 앱은 PC에서도 폭 480px의 가운데 열로 보여 주므로 화면 폭에 따라 달라지는 레이아웃(sm: md: lg:)을 쓰지 않는다.
+ * 이름 붙은 중단점을 도달할 수 없는 값으로 바꿔 두고, 랜딩페이지(/about)만 min-[1024px]: 같은 직접 지정 변형을 쓴다.
+ */
+@theme {
+  --breakpoint-sm: 99999px;
+  --breakpoint-md: 99999px;
+  --breakpoint-lg: 99999px;
+  --breakpoint-xl: 99999px;
+  --breakpoint-2xl: 99999px;
+}
+
+/* PC 화면에서는 앱 전체를 키워서 읽기 쉽게 한다(모든 크기가 rem 기준) */
+@media (min-width: 768px) {
+  html { font-size: 112.5%; }
+}
+@media (min-width: 1280px) {
+  html { font-size: 125%; }
+}
+
 body {
+  /* 한국어는 글자 단위가 아니라 단어 단위로 줄바꿈한다 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
   background: var(--background);
   color: var(--foreground);
   font-family:
@@ -41,3 +64,50 @@ button:disabled {
   .tg-run { animation: none; transform: translateX(var(--stop, 20cqw)); }
   .tg-bob { animation: none; }
 }
+
+/* 모바일에서 카드 목록은 세로로 길게 쌓지 않고 옆으로 넘겨 본다. 부모의 좌우 여백(1rem)까지 펼친다 */
+@media all {
+  .tg-rail {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    padding-bottom: 0.5rem;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+  }
+  .tg-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .tg-rail > * {
+    flex: 0 0 84%;
+    scroll-snap-align: start;
+  }
+}
+
+/* 모바일 가독성: 작은 글자와 연한 회색 글자를 한 단계 키우고 진하게 한다 */
+@media all {
+  .text-xs { font-size: 0.8125rem; line-height: 1.25rem; }
+  .text-sm { font-size: 0.9375rem; line-height: 1.4rem; }
+  .text-\[11px\] { font-size: 0.75rem; }
+  .text-zinc-500 { color: #52525b; }
+  .text-zinc-400 { color: #71717a; }
+  .text-zinc-600 { color: #3f3f46; }
+}
+
+
+/* 칩 한 줄: 옆으로 넘겨 보되 칩 너비는 내용에 맞춘다. 부모의 좌우 여백(1rem)까지 펼친다 */
+.tg-chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin-inline: -1rem;
+  padding-inline: 1rem;
+  scrollbar-width: none;
+}
+.tg-chips::-webkit-scrollbar {
+  display: none;
+}
+
